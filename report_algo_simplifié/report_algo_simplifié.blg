@@ -1,0 +1,55 @@
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: report_algo_simplifié.aux
+The style file: plain.bst
+Database file #1: biblio.bib
+Warning--entry type for "yt:monka2015" isn't style-file defined
+--line 20 of file biblio.bib
+Warning--entry type for "yt:monceau2020" isn't style-file defined
+--line 27 of file biblio.bib
+Warning--entry type for "web:w3schools" isn't style-file defined
+--line 34 of file biblio.bib
+Warning--can't use both author and editor fields in cormen2004
+Warning--can't use both author and editor fields in fournier2006
+You've used 7 entries,
+            2118 wiz_defined-function locations,
+            532 strings with 4617 characters,
+and the built_in function-call counts, 1740 in all, are:
+= -- 160
+> -- 65
+< -- 0
++ -- 28
+- -- 20
+* -- 96
+:= -- 297
+add.period$ -- 18
+call.type$ -- 7
+change.case$ -- 29
+chr.to.int$ -- 0
+cite$ -- 9
+duplicate$ -- 67
+empty$ -- 164
+format.name$ -- 20
+if$ -- 360
+int.to.chr$ -- 0
+int.to.str$ -- 7
+missing$ -- 6
+newline$ -- 35
+num.names$ -- 14
+pop$ -- 48
+preamble$ -- 1
+purify$ -- 24
+quote$ -- 0
+skip$ -- 50
+stack$ -- 0
+substring$ -- 86
+swap$ -- 9
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 24
+warning$ -- 2
+while$ -- 18
+width$ -- 8
+write$ -- 68
+(There were 5 warnings)

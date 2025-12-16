@@ -1,0 +1,3073 @@
+\documentclass{article}
+% Packages
+\usepackage[a4paper]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}  % Correction ici
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{progproving}
+\usepackage{xcolor}        % Avant listings
+\usepackage{listings}
+\usepackage{url}
+\usepackage{pdflscape}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+% \lstset{
+%     language=C,
+%     basicstyle=\ttfamily,
+%     breaklines=true,
+%     frame=single,
+%     showstringspaces=false,
+%     commentstyle=\itshape, % Style simple pour les commentaires,
+%     escapeinside={/*@}{@*/}
+% }
+
+\lstset{
+    language=C,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    showstringspaces=false,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    captionpos=b,
+    escapeinside={/*@}{@*/}
+}
+
+\geometry{top=25mm,bottom=25mm,inner=25mm,outer=20mm}
+\allowdisplaybreaks
+
+\begin{document}
+\title{HDCB232 - Algorithmique 1 - Travail individuel \\ Année académique 2025-2026}
+
+\author{Pierre-André MARCHAND}
+
+\maketitle
+
+\section{Introduction}
+Etant quelqu'un de très visuel, j'ai tout de suite été attiré par les algorithmes de 
+recherche dans les graphes. 
+Dès lors, j'ai voulu m'initier à ces algorithmes en regardant plusieurs
+vidéos de vulgarisation de professeurs de mathématiques français : 
+Vincent Monceau \cite{yt:monceau2020} et Yvan Monka \cite{yt:monka2015}.
+Ensuite pour approfondir mes connaissances, j'ai lu plusieurs articles scientifiques
+sur le sujet, notamment l'article original de Dijkstra \cite{dijkstra1959} et une revue en français
+de C. Prins \cite{prins1996}.
+Enfin, j'ai consulté d'autres ressources en ligne, comme un article sur le portail W3Schools \cite{web:w3schools}, 
+une plateform d'apprentissage en informatique, qui présentait des animations sur l'algorithme de Dijkstra.
+
+Cet algorithme est notamment utilisé pour calculer le chemin le plus court entre deux noeuds 
+appartenant à un graphe. Le graphe comprend un réseau de noeuds reliés entre eux par des arêtes. 
+Chaque arêtee est caractérisée par un poids, qui peut représenter une distance, un coût, etc. 
+Pour l'algorithme de Dijkstra, les poids des arêtes ne peuvent pas être négatifs. Dès lors,
+des variants de l'algorithme existent pour gérer les poids négatifs, comme l'algorithme de Bellman-Ford.
+
+L'algorithme de Dijkstra pourrait être utilisé dans les systèmes de navigation GPS.
+Cependant l'algorithme de Dijkstra demande de parcourir une multitude de noeuds et
+il n'est vraissembablement pas le plus rapide pour trouver un chemin optimal entre 2 noeuds routiers.
+Cet algorithme reste assez intuitif et possède une postcondition forte : le chemin le plus court.
+
+Un autre challenge pour ma part est d'appeler mon algorithme compilé de Dijkstra (codé en C) depuis Python afin de:
+\begin{enumerate}
+\item Récupérer des cartes de navigations OpenStreetMap
+\item Extraire les données de ces cartes pour construire un graphes
+\item Convertir ces données en un format utilisé par le programme C
+\item Récupérer le résultat du programme C dans Python (par un ficher .json)
+\item Afficher le chemin le plus court sur la carte
+\end{enumerate}
+De cette façon, l'algorithme de Dijkstra pourra être testé sur des données réelles.
+
+\section{Spécification de l'algorithme}
+
+\subsection{Environnement}
+
+Appel de la fonction principale :
+\begin{lstlisting}
+unsigned int shortest_path(unsigned int n,
+                            float** w, 
+                            unsigned int s,
+                            unsigned int d,
+                            unsigned int** path);
+\end{lstlisting}
+
+
+\subsection{Précondition}
+Les conditions pour que l'algorithme de Dijkstra fonctionne correctement sont les suivantes :
+
+\begin{itemize}
+\item $n$ est le nombre de noeuds dans le graphe. $n$ doit être plus grand que 0.
+\item $w$ est la matrice qui défini les poids des arètes du graphe. 
+Elle est de taille $n \times n$. Les valeurs de $w$ sont des nombres à virgules flotantes. 
+Les poids sont plus grands ou égale à 0.
+Une valeur de poid infinie sur deux noeuds marquent une absence d'arète entre ceux-ci.
+\item $s$ est le naturel qui identifie le noeud source à partir duquel il faut trouver le chemin le plus court. 
+$s$ est strictement inférieur à $n$.
+\item $d$ est le naturel qui identifie le noeud de destination vers lequel trouver le chemin le plus court. 
+$s$ est strictement inférieur à $n$.
+\item $path$ est un pointeur initialisé vers un tableau d'entiers naturels.  
+\item $\mapsto$ est une relation de connexion directe entre deux noeuds du graphe. 
+Si $i \mapsto j$, alors il existe une arètes reliant le noeud i au noeud j.
+\end{itemize}
+
+Soit la fonction suivante:
+
+
+\begin{flalign}
+  In\_graph(n,i) \overset{def}{=} \label{eq:ingraph} & 0\leq i < n\\ 
+  i \mapsto j \overset{def}{=} \label{eq:mapsto} & 0\leq w[i][j] < +\infty \lor 0 \leq w[j][i] < +\infty\\
+  G\_non\_oriente(n) \overset{def}{=} \label{eq:nonoriente} &
+  \left\{ \begin{aligned}
+  & true & \text{ Si }\\
+  & &\forall i,j \:|\: In\_graph(n, i) \land In\_graph(n, j) \land i \neq j :\\
+  & & i \mapsto j \implies j \mapsto i\\ 
+  & false & \text{ Sinon }\\
+  \end{aligned}\right.
+\end{flalign}
+
+
+Dès lors, Nous pouvons formellement définir les préconditions comme suit :
+
+\begin{flalign*}
+  \pre \equiv & \state{
+    &  0<n \land \\
+    & 0 \leq s < n \land 0 \leq d < n \land \\
+    & w[0..n-1][0..n-1] \text{ initialisé}  \land \\
+    & G\_non\_oriente(n) = true \land \\  
+    & path[null] \text{ initialisé} \\
+  } 
+\end{flalign*}  
+
+
+\subsection{Postcondition}
+Soit les fonctions suivantes :
+
+
+\begin{flalign}
+  Chemins\_possibles(w,s,d)  \overset{def}{=} \label{eq:chemins_possibles} & \left\{ \begin{aligned}
+    & \forall p[0..q-1] | \\ 
+    &  \quad 0< q \leq n \land p[0] = s \land p[q-1] = d \land \\
+    &  \quad  \forall k | 0 \leq k < q-1 \land 0 \leq w[k][k+1] < + \infty \\
+    \end{aligned} \right.\\
+  Parcours(w,path,m,s,d)  \overset{def}{=}  \label{eq:parcours} & \left\{ \begin{aligned} 
+    & \sum_{k=0}^{m-2} w[path[k]][path[k+1]] \: |\\
+    & \quad path[0]=s \land path[m-1]=d \land\\
+    & \quad path \in Chemins\_possibles(w,s,d)
+    \end{aligned} \right.\\
+  Parcours\_possibles(w,s,d)  \overset{def}{=}  \label{eq:parcours_possibles} &
+    \forall p \in Chemins\_possibles(w,s,d) : Parcours(w,p,\#p,s,d) \\
+  Etapes(w,s,d,path)   \overset{def}{=}  \label{eq:etapes} & \left\{ \begin{aligned}
+    & 1 & \text{si }s = d  \\
+    & 0 & \text{Si } path \notin Chemins\_possibles(w,s,d) \\
+    & \#path & \text{sinon} \\
+  \end{aligned} \right.\\
+  First\_in\_path(path,m,s) \overset{def}{=} \label{eq:first_pos}& \left\{ \begin{aligned}
+    & s & \text{si } m > 0 \\
+    & \emptyset & \text{sinon} \\
+  \end{aligned} \right.\\
+  Last\_in\_path(path,m,d) \overset{def}{=} \label{eq:last_pos}& \left\{ \begin{aligned}
+    & d & \text{si } m > 0 \\
+    & \emptyset & \text{sinon} \\
+  \end{aligned} \right.\\
+\end{flalign}
+
+Les postconditions de l'algorithme de Dijkstra sont les suivantes :
+\begin{flalign*}
+  \post \equiv & \state{
+    & n = n_0 \land  w = w_0 \land \\
+    & s = s_0 \land d = d_0 \land \\
+    & path[0..m-1] \text{ initialisé} \land 0 \leq m \leq n \land\\ 
+    & m = Etapes(w,s,d,path)\land  \\
+    & path[0] = First\_in\_path(path,m,s) \land\\ 
+    & path[m-1] = Last\_in\_path(path,m,d) \land \\
+    & Parcours(w,path,m,s,d) \leq Parcours\_possibles(w,s,d) \land \\
+    & shortest\_path = Etapes(w,s,d,path,m) \land \\
+  } 
+\end{flalign*}  
+
+\section{Implémentation}
+
+\subsection{Déclaration des données abstraites et structures communes}
+\subsubsection{Structures communes}
+\begin{lstlisting}
+// Fonction d'ordre pour donner la priorite aux petites valeurs
+static float leq(float a, float b){
+    return a-b;
+}
+
+// Noeud de la file de priorite
+struct Node_PQ{
+    float priority;
+    int id;
+};
+
+// Liste de priorite utilisant un tas binaire
+struct PQ {
+    Node_PQ_t list;
+    int size;
+    int capacity;
+    float (*leq)(float, float);
+};  
+\end{lstlisting}
+
+\subsubsection{Données abstraites à propos de la priority queue (pq.h)}
+\lstinputlisting[language=C]{../simplified_dikstra_algo/src/pq.h} 
+
+\subsubsection{Données abstraites sur les méthodes de l'algorithme (dijkstra.h)}
+\lstinputlisting[language=C]{../simplified_dikstra_algo/src/dijkstra.h}
+
+\subsubsection{Pertinence de la structure de données}
+En théorie des graphes, un graphe $G$ est défini par deux ensembles finis: un ensembles $V$ de noeuds (ou sommets) et 
+une ensemble $E$ d'arêtes (ou liens) reliant ces noeuds. 
+A chaque arête est associé deux sommets $x$ et $y$ appartenant à $V$ \cite[p17]{fournier2006}.
+Dans une problème du plus court chemin, il existe une fonction de pondération $w$ 
+qui fait correspondre à chaque arête un poids ayant une valeur réel \cite[p562]{cormen2004}.
+Dans le cas de l'algorithme de Dijkstra, ce poids est toujours positif ou nul \cite[p577]{cormen2004}.
+
+Dans l'implémentation, on retrouve l'ensemble des noeuds $V$ comme les entriers naturelss allant de 0 à $n - 1$. 
+$s$ et $d$ sont deux entiers naturels appartenant à cet ensemble $V$.
+Les arêtes $E$ sont représentées par une matrice de poids $w$ de taille $n \times n$. 
+Dans la matrice $w$, les valeurs $w[i][j]$ sont bel et bien positives comme le stipule les conditions de l'algorithme 
+de Dijkstra.
+
+Dans l'implémentation, une autre structure utilisée durant l'exploration des noeuds : une file de priorité sous forme de tas binaire. 
+Celle-ci utilise un tableau de structure Node\_PQ ayant comme paramètres un float $priority$ et un entier $id$.
+Cette structure permet de retourner avec une complexité constante l'élément le plus prioritaire. 
+A chaque ajout ou retrait d'élément ($id$ et $priority$) dans cette file de priorité, cela nécessite une complexité logarithmique
+pour réorganiser le tas binaire et ainsi maintenir l'ordre du tas. 
+Dans notre situation, la priorité s'avère être la plus courte distance à partir de la source et 
+$id$ est un noeud dans l'ensemble $V$. 
+A chaque itération de l'algorithme, la file de priorité nous garantit que le noeud ayant la plus courte distance
+à partir de la source est exploré en premier. C'est un aspect crucial de l'algorithme de Dijkstra.
+
+
+\subsection{File de priorité par tas binaire}
+\lstinputlisting[language=C]{../simplified_dikstra_algo/src/pq.c}
+
+\subsection{Exploration de noeud et fonction principale}
+\lstinputlisting[language=C]{../simplified_dikstra_algo/src/dijkstra.c}
+
+\section{Fonctionnement intuitif de l'algorithme}
+\label{sec:fonctionnement} 
+
+D'après l'article de Dijkstra \cite{dijkstra1959}, il faut considérer 3 ensembles de noeuds. 
+Dans l'ensemble $A$, la distance venant de la source est connue pour les noeuds. 
+Les noeuds seront ajoutés à l'ensemble $A$ par ordre croissant de distance à partir de la source.
+Dans l'ensemble $B$ figurent les noeuds directement connectés aux noeuds de l'ensemble $A$ sans faire partir à l'ensemble $A$ eux-mêmes.
+L'ensemble $C$ comportent les autres noeuds.
+
+Dans l'étape d'initialisation de l'algorithme, pour chaque noeud, la distance venant du noeud source est initialisée à $+\infty$.
+A l'exception du noeud source $s$ lui-même où cette distance est posée à 0. Ce noeud est donct ajouté à l'ensemble B.
+Chaque itération de l'algorithme va comporter les étapes suivantes:
+\begin{enumerate}
+\item Un noeud $k$ appartenant à $B$ ayant la plus petite distance venant de la source est sélectionné pour être "exploré" en profondeur.
+Ce noeud $k$ est ajouté à l'ensemble $A$. Dans mon implémentation, $k$ est obtenu par:
+\begin{lstlisting}
+Node_PQ_t k = peek_pq(pq);
+\end{lstlisting}
+\item Pour chaque noeud voisin $l$ non exploré de $k$, la distance depuis la source est estimée en ajoutant 
+la distance connue de $k$ au poids de l'arête qui les relie. Dans mon implémentation, ceci est fait par:
+\begin{lstlisting}
+new_dist_from_source = distance_from_source[k] + weights[k][l];
+\end{lstlisting}
+\item Si cette estimation est plus petite qu'une estimation précédente alors la nouvelle estimation remplace la distance à partir de la source
+pour un noeud $l$. Dans ce cas, on garde en mémoire dans le noeud voisin que le noeud $l$
+est le noeud précédent qui permet, à ce stade, la distance la plus courte venant de la source $\alpha$.
+\begin{lstlisting}
+if (new_dist_from_source < distance_from_source[l]) {
+    distance_from_source[l] = new_dist_from_source;
+    previous_node[l] = k;
+}
+\end{lstlisting}
+\item Pour peu que les noeuds voisins de $k$ n'appartiennent pas à l'ensemble $A$, 
+ceux-ci sont ajoutés à l'ensemble $B$ avec leur distance venant de la source mis à jour à l'étape précédente.
+\begin{lstlisting}
+remove_id_from_pq(pq, l);
+add_to_pq(pq, new_distance_from_source, l);
+\end{lstlisting}
+\item On réitère les étapes 1, 2, 3 et 4 tant que le noeud de destination $d$ n'est pas ajouté à l'ensemble $A$
+ ou que l'ensemble $B$ et $C$ ne soient vides (cas où il n'existe pas de chemin). 
+\end{enumerate}  
+ 
+De façon mécanique, l'ensemble $B \cup C$ se réduit à chaque itération 
+tout en garantissant que les noeuds inclus dans l'ensemble $B$ ont un chemin venant de $s$.
+Lors de l'exploration du noeud $d$, on garantit que le chemin en provenance de $s$ est celui qui est le plus court.
+Il reste à remonter la provenance de chaque noeud avec son meilleur prédecesseur (voir étape 3) pour obtenir la liste de noeuds à parcourir 
+qui forme le chemin le plus court entre $s$ et $d$.
+\begin{lstlisting}
+int i_node = destination_id;
+while (previous_nodes[i_node] >= 0) {
+    path[path_n_nodes - count] = i_node;
+    count++;
+    i_node = previous_nodes[i_node];
+}
+\end{lstlisting}
+
+\section{Preuve de programmation d'un invariant}
+\label{sec:invariant}
+Voici le début  de la fonction principale de l'algorithme de Dijkstra. 
+Celui-ci se termine pas une boucle qui est particulièrement intéressante pour la preuve de l'invariant.
+\begin{lstlisting}
+  // Initialisation des strcutures et tableaux
+    PQ_t pq = create_pq(leq, n);
+    float* dist_from_source = (float*)malloc(n * sizeof(float));
+    int* previous_nodes = (int*)malloc(n * sizeof(int));
+    bool* explored = (bool*)malloc(n * sizeof(bool));
+
+    for (int i = 0; i < n; i++) {
+        dist_from_source[i] = FLT_MAX;
+        previous_nodes[i] = -1;
+        explored[i] = false;
+    }
+
+    // Point de depart de l'exploration
+    dist_from_source[s] = 0.0;
+    add_to_pq(pq, dist_from_source[s], s);
+
+    // Exploration des noeuds
+    Node_PQ_t current_node = peek_pq(pq);
+    int k = current_node->id;
+    float w_k=INFINITY;
+    float new=FLT_MAX;
+    while (explored[d] == false && !is_pq_empty(pq)) {
+        current_node = peek_pq(pq);
+        k = current_node->id;
+        // Marque noeud courant comme explore
+        explored[k] = true;
+        if (k != d) {
+            // Explorer les voisins du noeud courant
+            for (unsigned int i = 0; i < n; i++) {
+                w_k=w[k][i];
+                // Si le noeud voisin n'a pas encore ete explore
+                // Un noeud j est voisin de i si 0<=w[i][j]<+inf
+                if (!isinf(w_k) && explored[i] == false) {
+                    new = dist_from_source[k] + w_k;
+                    // Le noeud voisin n'a pas ete visite auparavant apd d'un autre noeud: enlever l'ancienne distance de PQ
+                    if (new<dist_from_source[i]){
+                        if( previous_nodes[i]!=-1){
+                            remove_id_from_pq(pq, i);
+                        }
+                        dist_from_source[i]=new;
+                        previous_nodes[i]=k;
+                        add_to_pq(pq,new,i);
+                    }
+                    // nouvelle distance plus longue
+                        // Pas d'action
+                }
+            }
+            // Enlever noeud explore de la file de priorite
+            serve_pq(pq);
+        }
+    }
+\end{lstlisting}
+\subsection{Expression mathématiques utilisées}
+Soit les fonctions suivantes pour augmenter l'expressivité du language formel \label{sec:mathfunc}:
+\begin{flalign}
+  &x \in pq \overset{def}{=} \exists i, 0 \leq i < m \land pq[0,...,m-1] \text{ initialisé } \land pq[i]\to id = x &&\\
+  &Min(a,b)  \overset{def}{=} \left\{ \begin{aligned}
+    & a & \text{si } a < b\\
+    & b & \text{sinon}
+  \end{aligned} \right. &&\\
+  &Prioritaire(pq)  \overset{def}{=} \label{eq:prioritaire} \left\{ \begin{aligned}
+    & \emptyset & \text{si } pq\to size = 0\\
+    & pq\to list[j]\to id |  & \text{sinon}\\
+    & \state{
+    \begin{aligned}
+    & \forall i  \in pq\to list \land \\
+    & \exists j \in pq\to list \land\\
+    & pq\to list[j]\to priority= \\
+    & \quad Min(pq\to list[j]\to priority,\\
+    & \quad pq\to list[i]\to priority) \\
+    \end{aligned}
+    }
+  \end{aligned} \right. &&\\
+  &Chemin\_inverse(w,n,s,i) \overset{def}{=} \label{eq:chemin_inverse} 
+  \left\{ \begin{aligned}
+      & \emptyset & \text{si } previous\_node[i] = -1 \land i \neq s  \\
+      & s & \text{si }i = s  \\
+      & Chemin\_inverse(w,n,s,previous\_node[i]) & \text{Sinon} \\
+  \end{aligned} \right. &&\\
+  &Reverse(path,m) \overset{def}{=} \label{eq:reverse} \left\{ \begin{aligned}
+    & path[k] & \text{si } k = 0  \\
+    & path[m-1-k] & \text{Sinon} \\
+  \end{aligned} \right. &&\\
+  &Chemin(w,m,s,i) \overset{def}{=} \label{eq:chemin}  Reverse(Chemin\_inverse(w,n,s,i),m) &&\\
+  &Pointeur(S)  \overset{def}{=} a |adresse(S): valide(a) \land alloue(sizeof(S)) &&\\
+  &PQ\_init(leq,n) \overset{def}{=} \text{Pointeur(struct PQ)} \: |  
+      \state{
+      &pq \to \text{size} = 0 \land \\
+      &pq \to \text{capacity} = n \land \\
+      &pq \to \text{leq}(a,b) = \left\{ \begin{aligned}
+        & x | x\leq 0 & \text{si }a \leq b  \\
+        & x | x>0 & \text{sinon} \\
+      \end{aligned} \right. \land \\
+      &pq \to \text{list} = \text{Pointeur(struct Node\_PQ[0..n])} \land \\
+      &pq \to \text{list[0..n] initialisé}
+      }&\label{eq:pqinit}\\
+  &Priority(pq,index) \overset{def}{=}
+    pq\to list[index]\to priority &&\\
+  &Id(pq,index) \overset{def}{=}
+    pq\to list[index]\to id &&\\
+  &Parent(pq,index) \overset{def}{=}
+    \left\{
+      \begin{aligned}
+        & \emptyset & \text{ Si } (index-1)/2 < 0 \lor index > pq\to size -1  \\
+        & pq\to list[(index-1)/2]\to id & \text{ Sinon } \\
+      \end{aligned}
+    \right. &&\\
+  &List\_parent\_up(pq\to list, child, ancestor) \overset{def}{=} 
+     \left\{
+    \begin{aligned}
+      &\{\} \qquad & \text{ Si } (child-1)/2 < ancestor \\
+      &List\_parent\_up(pq\to list,  & \text{ Sinon } \\
+      & \quad (child-1)/2,&\\
+      & \quad ancestor)&\\
+    \end{aligned}
+  \right.\\
+  &Order\_up(pq,child,ancestor) \overset{def}{=}
+  \label{eq:pqupdecreasing}
+    \left\{
+    \begin{aligned}
+      & true & \text{ Si } \state{
+        & parents = (p1,...,p_m) \land \\
+        & parents = \\
+        & \quad List\_parent\_up(pq\to list,child,ancestor) \land \\
+        &\forall k, 0 \leq k < m-1 :\\
+        & pq\to list[p_k]\to priority \geq\\ 
+        & \quad pq\to list[p_{k+1}]\to priority
+      }\\
+      & false & \text{ Sinon }\\ 
+    \end{aligned}
+  \right.\\
+  &List\_childs\_down(pq, parent) \overset{def}{=} 
+     \left\{
+    \begin{aligned}
+      &\{\} \qquad & \text{ Si } parent<0 \lor 2*parent+1 > pq\to size-1 \\
+      &List\_childs\_down(pq,& \text{ Si } 2*parent+1 = pq\to size-1 \\
+      & \quad 2*parent+1)&\\
+      &List\_childs\_udown(pq,& \text{ Sinon } \\
+      & \quad 2*parent+1),&\\
+      &List\_childs\_down(pq,&\\
+      & \quad 2*parent+2)&\\
+    \end{aligned}
+  \right.\\
+  &Order\_down(pq,parent) \overset{def}{=}
+    \left\{
+    \begin{aligned}
+      & true & \text{ Si }\state{
+        & \forall k \in List\_childs\_down(pq,parent) : \\
+        & Priority(pq,Parent(pq,k)) \leq Priority(pq,k)\\
+      }\\
+      & false & \text{ Sinon }\\ 
+    \end{aligned}
+  \right.&&\\
+  &Order(pq) \overset{def}{=}
+    Order\_down(pq,0) \lor 
+    \forall i | 0 \leq i < pq\to size : 
+    Order\_up(pq,i,0) &&\\
+&Exploration\_init(n, w, s, d, path) \overset{def}{=}
+\label{eq:explo_init}
+  \left\{
+    \begin{aligned}
+    & true & \text{ Si }
+    \state{
+    & n = n_0 \land  w = w_0 \land \\
+    & s = s_0 \land d = d_0 \land \\
+    & pq = PQ\_init(leq,n) \land  \\
+    & explored[0..n-1] \text{ initialisé} \land \\
+    & distance\_from\_source[0..n-1] \text{ initialisé} \land \\
+    & previous\_node[0..n-1] \text{ initialisé} \land \\
+    & G\_non\_oriente(n) = true \land \\
+    & \text{path[null] initialisé} \\  
+    }\\
+     &false & \text{ Sinon }\\
+    \end{aligned}
+  \right.&&
+\end{flalign}
+
+
+\subsection{Trouver $I$}
+En plus d'un maintien des valeurs initiales pour les paramètres d'entrée $n$, $w$, $s$ et $d$,
+une série de conditions de l'invariant attraient à l'initialisation de structures de données 
+$pq$, $explored$, $distance\_from\_source$ et $previous\_node$.
+Ensuite, la partie cruciale de l'invariant est d'assurer que le noeud $k$ sélectionné pour l'exploration
+est bien celui qui possède la distance minimale venant de la source. 
+Par conséquent, le chemin $path\_k$ construit à partir de $s$ vers $k$ doit être le chemin le plus court
+parmi tous les chemins possibles allant de $s$ à $k$.
+Tant qu'il existe des noeuds à explorer ou que le noeud de destination $d$ n'a pas été exploré,
+l'invariant est maintenu.
+
+Cet invariant est en direct relation avec la postcondition de l'algorithme de Dijkstra car une 
+fois le noeud de destination $d$ exploré, le chemin construit entre $s$ et $d$ est garanti d'être le plus court.
+
+L'écrire formelle de l'invariant utilise de nombreuses expressions mathématiques définies précédemment dans la section~\ref{sec:mathfunc}.
+\begin{flalign*}
+  I \equiv & \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = Min(Parcours(w,path\_k,\#path\_k,s,k),Parcours\_possibles(w,s,k)) \\
+  } 
+\end{flalign*}  
+
+\subsection{Trouver $\neg B$}
+% ! (explored [ d ] == false && ! is_pq_empty ( nodes_to_explore ) )
+\begin{flalign*}
+  \neg B  \equiv & \state{
+    & explored[d] = true \lor \\
+    & pq\to size = 0 \\
+  } 
+\end{flalign*}  
+
+\subsection{Démonstration des fonctions intermédiaires}
+\subsubsection{Preuve de create\_pq}
+Son environement : 
+\begin{lstlisting}
+  // Fonction pour creer une file de priorite vide
+PQ_t create_pq(float (*leq)(float, float), unsigned int n_nodes);
+\end{lstlisting}
+\begin{flalign*}
+\pre \equiv & \state{
+  & 0 < n\_nodes \land \\
+  & leq(a,b) \ \overset{def}{=}  \left\{ \begin{aligned}
+    & x | x\leq 0 & \text{si }a \leq b  \\
+    & x | x>0 & \text{sinon} \\
+  \end{aligned} \right.
+} \\
+\post \equiv & \state{
+  & pq = PQ\_init(leq,n) \\
+} \\
+\end{flalign*}
+Démonstration par la plus forte précondition:
+\begin{flalign*}
+  & \ppsp{
+    \parbox{0.3\linewidth}{\lstinline|PQ_t pq := (PQ_t)malloc(sizeof(struct PQ));|}
+  }{
+    \state{
+      & 0 < n\_nodes \land \\
+      & leq(a,b) \ \overset{def}{=}  \left\{ \begin{aligned}
+        & x | x\leq 0 & \text{si }a \leq b  \\
+        & x | x>0 & \text{sinon} \\
+      \end{aligned} \right.
+    }
+  } \\
+  &\\
+  &\equiv \ppsp{
+    \parbox{0.3\linewidth}{\lstinline|pq->list := malloc(n_nodes*sizeof(struct Node_PQ));|}
+  }{
+    \state{
+      & 0 < n\_nodes \land \\
+      & leq(a,b) \ \overset{def}{=}  \left\{ \begin{aligned}
+        & x | x\leq 0 & \text{si }a \leq b  \\
+        & x | x>0 & \text{sinon} \\
+      \end{aligned} \right.\land\\
+      & pq = \text{Pointeur(struct PQ)}  \\
+    }
+  } \\
+  &\\
+    &\equiv \ppsp{
+    \parbox{0.3\linewidth}{\lstinline| pq->size := 0;|}
+  }{
+    \state{
+      & 0 < n\_nodes \land \\
+      & leq(a,b) \ \overset{def}{=}  \left\{ \begin{aligned}
+        & x | x\leq 0 & \text{si }a \leq b  \\
+        & x | x>0 & \text{sinon} \\
+      \end{aligned} \right.\land\\
+      & pq = \text{Pointeur(struct PQ)}  \\
+      & pq \to \text{list} = \text{Pointeur(struct Node\_PQ[0..n\_nodes-1])} \land \\
+      & pq \to \text{list}[0..n\_nodes-1] \text{ initialisé} \land \\
+    }
+  } \\
+  &\\
+    &\equiv \ppsp{
+    \parbox{0.3\linewidth}{\lstinline|pq->capacity := n_nodes;|}
+  }{
+    \state{
+      & 0 < n\_nodes \land \\
+      & leq(a,b) \ \overset{def}{=}  \left\{ \begin{aligned}
+        & x | x\leq 0 & \text{si }a \leq b  \\
+        & x | x>0 & \text{sinon} \\
+      \end{aligned} \right.\land\\
+      & pq = \text{Pointeur(struct PQ)}  \\
+      & pq \to \text{list} = \text{Pointeur(struct Node\_PQ[0..n\_nodes-1])} \land \\
+      & pq \to \text{list}[0..n\_nodes-1] \text{ initialisé} \land \\
+      & pq \to \text{size} = 0 \land \\
+    }
+  } \\
+  &\\
+    &\equiv \ppsp{
+    \parbox{0.3\linewidth}{\lstinline|pq->leq := leq;|}
+  }{
+    \state{
+      & 0 < n\_nodes \land \\
+      & leq(a,b) \ \overset{def}{=}  \left\{ \begin{aligned}
+        & x | x\leq 0 & \text{si }a \leq b  \\
+        & x | x>0 & \text{sinon} \\
+      \end{aligned} \right.\land\\
+      & pq = \text{Pointeur(struct PQ)}  \\
+      & pq \to \text{list} = \text{Pointeur(struct Node\_PQ[0..n\_nodes-1])} \land \\
+      & pq \to \text{list}[0..n\_nodes-1] \text{ initialisé} \land \\
+      & pq \to \text{size} = 0 \land \\
+      & pq \to \text{capacity} = n\_nodes \land \\
+    }
+  } \\
+  &\\
+    &\equiv \ppsp{
+    \parbox{0.3\linewidth}{\lstinline|return pq;|}
+  }{
+    \state{
+      & 0 < n\_nodes \land \\
+      & pq = \text{Pointeur(struct PQ)}  \\
+      & pq \to \text{list} = \text{Pointeur(struct Node\_PQ[0..n\_nodes-1])} \land \\
+      & pq \to \text{list}[0..n\_nodes-1] \text{ initialisé} \land \\
+      & pq \to \text{size} = 0 \land \\
+      & pq \to \text{capacity} = n\_nodes \land \\
+      & pq \to \text{leq}(a,b) =\left\{ \begin{aligned}
+        & x | x\leq 0 & \text{si }a \leq b  \\
+        & x | x>0 & \text{sinon} \\
+      \end{aligned} \right.\\
+    }
+  } \\
+  &\\
+      &\equiv 
+    \state{
+      & 0 < n\_nodes \land \\
+      & pq = \text{Pointeur(struct PQ)}  \\
+      & pq \to \text{list} = \text{Pointeur(struct Node\_PQ[0..n\_nodes-1])} \land \\
+      & pq \to \text{list}[0..n\_nodes-1] \text{ initialisé} \land \\
+      & pq \to \text{size} = 0 \land \\
+      & pq \to \text{capacity} = n\_nodes \land \\
+      & pq \to \text{leq}(a,b) =\left\{ \begin{aligned}
+        & x | x\leq 0 & \text{si }a \leq b  \\
+        & x | x>0 & \text{sinon} \\
+      \end{aligned} \right.}\\
+& \parbox{0.9\linewidth}{Par définition~\eqref{eq:pqinit}, nous pouvons écrire que :}\\
+  &\\
+      &\equiv 
+    \state{
+      & 0 < n\_nodes \land \\
+      & pq = PQ(leq,n\_nodes)\\
+    }\\
+  &\Rightarrow \post\\
+\end{flalign*}
+
+\subsubsection{Preuve de $is\_pq\_full$}
+Son environement :
+\begin{lstlisting}
+bool is_pq_full(PQ_t pq);
+\end{lstlisting}
+\begin{flalign*}
+\pre \equiv & \state{
+  & pq = PQ\_init(leq,n) \\
+} \\
+& \\
+\post \equiv & \state{
+  & \left\{ \begin{aligned}
+    & true & \text{si } pq\to size = pq\to capacity \\
+    & false & \text{sinon} \\
+  \end{aligned} \right. \\
+} \\
+\end{flalign*}
+Démonstration par la plus forte précondition :
+\begin{flalign*}
+  & \ppsp{
+    \parbox{0.3\linewidth}{\lstinline|return pq->size == pq->capacity;|}
+  }{
+    \state{
+      & pq = PQ\_init(leq,n) \\
+    }
+  } \\
+  &\\
+  &\equiv 
+    \state{
+      & pq = PQ\_init(leq,n)\\
+      &\left\{ \begin{aligned}
+        & true & \text{si } pq\to size = pq\to capacity \\
+        & false & \text{sinon} \\
+      \end{aligned} \right. \\
+    }\\
+  &\Rightarrow \post\\
+\end{flalign*}
+
+\subsubsection{Preuve de $swap$}
+Son environement :
+\begin{lstlisting}
+struct Node_PQ{
+    float priority;
+    int id;
+};
+typedef struct Node_PQ* Node_PQ_t;
+void swap(Node_PQ_t* a, Node_PQ_t* b);
+\end{lstlisting}
+\begin{flalign*}
+\pre \equiv & \state{
+  & a = \text{Pointeur(struct Node\_PQ)} \land \\
+  & b = \text{Pointeur(struct Node\_PQ)}  \\
+} \\
+& \\
+\post \equiv & \state{
+  & a = \text{Pointeur(struct Node\_PQ)} \land \\
+  & b = \text{Pointeur(struct Node\_PQ)} \land \\
+  & a\to priority = b_0\to priority \land a\to id = b_0\to id \land \\
+  & b\to priority = a_0\to priority \land b\to id = a_0\to id \\
+} \\  
+\end{flalign*}
+Démonstration par la plus forte précondition :
+\begin{flalign*}
+   & \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|struct Node_PQ temp := *a;|\\
+       \lstinline| *a := *b;|\\
+        \lstinline| *b := temp;|}
+  }{
+    \state{
+      & pq = PQ\_init(leq,n) \\
+    }
+  } \\
+  &\\
+     & \equiv \ppsp{
+    \parbox{0.3\linewidth}{
+       \lstinline| *a := *b;|\\
+        \lstinline| *b := temp;|}
+  }{
+    \state{
+      & pq = PQ\_init(leq,n) \land \\
+      & tmp = Pointeur(struct Node_PQ) \land \\
+      & tmp\to priority = a_0\to priority \land tmp\to id = a_0\to id \land \\
+    }
+  } \\
+    &\\
+     & \equiv \ppsp{
+    \parbox{0.3\linewidth}{
+        \lstinline| *b := temp;|}
+  }{
+    \state{
+      & pq = PQ\_init(leq,n) \land \\
+      & tmp = Pointeur(struct Node_PQ) \land \\
+      & tmp\to priority = a_0\to priority \land tmp\to id = a_0\to id \land \\
+      & a\to priority = b_0\to priority \land a\to id = b_0\to id \land \\
+    }
+  } \\
+      &\\
+     & \equiv 
+    \state{
+      & pq = PQ\_init(leq,n) \land \\
+      & tmp = Pointeur(struct Node_PQ) \land \\
+      & tmp\to priority = a_0\to priority \land tmp\to id = a_0\to id \land \\
+      & a\to priority = b_0\to priority \land a\to id = b_0\to id \land \\
+      & b\to priority = tmp\to priority \land b\to id = tmp\to id \\
+    }\\
+      &\\
+     & \equiv 
+    \state{
+      & pq = PQ\_init(leq,n) \land \\
+      & tmp = Pointeur(struct Node_PQ) \land \\
+      & tmp\to priority = a_0\to priority \land tmp\to id = a_0\to id \land \\
+      & a\to priority = b_0\to priority \land a\to id = b_0\to id \land \\
+      & b\to priority = a_0\to priority \land b\to id = a_0\to id \\
+    }\\
+    \Rightarrow \post\\
+\end{flalign*}
+\subsubsection{Preuve de $order\_lineage\_up$}
+Son environement :
+\begin{lstlisting}
+struct PQ {
+    Node_PQ_t list;
+    int size;
+    int capacity;
+    float (*leq)(float, float);
+};
+typedef struct PQ* PQ_t;
+void order_lineage_up(PQ_t pq, int child);
+\end{lstlisting}
+\begin{flalign*}
+\pre \equiv & \state{
+  & pq = PQ\_init(leq,n) \land \\
+  & 0 \leq child < pq\to size \\
+}\\
+& \\
+\post \equiv & \state{
+  & pq = PQ\_init(leq,n) \land \\
+  & Order\_up(pq,child,parent) = true \implies \\
+        & \left\{ \begin{aligned}
+        & Priority(pq,parent)=Priority(pq,parent_0) \land  & \text{si }Priority(pq,parent_0) \leq Priority(pq,child_0)  \\
+        & Id(pq,parent)=Id(pq,parent_0) \land &\\
+        & Priority(pq,child)=Id(pq,child_0) \land &\\
+        & Id(pq,child)=Id(pq,child_0) &\\
+        & Priority(pq,parent)=Priority(pq,child_0) \land  & \text{sinon }  \\
+        & Id(pq,parent)=Id(pq,child_0) \land &\\
+        & Priority(pq,child)=Id(pq,parent_0) \land &\\
+        & Id(pq,child)=Id(pq,parent_0) &\\
+      \end{aligned} \right.
+} \\
+\end{flalign*}
+Démonstration par la plus forte précondition :
+\begin{flalign*}
+  & \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|int parent := (child-1)/2;|\\
+      \lstinline| if( pq->leq(pq->list[parent].piority,pq->list[child].piority)>0))|\\
+      \lstinline|  swap(&pq->list[parent], &pq->list[child]);|\\
+      \lstinline| return parent;|\\
+      }
+  }{
+    \state{
+        & pq = PQ\_init(leq,n) \land \\
+        & 0 \leq child < pq\to size \\
+    }
+  } \\
+  &\\
+  &\equiv \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline| if( pq->leq(pq->list[parent].piority,pq->list[child].piority)>0))|\\
+      \lstinline|  swap(&pq->list[parent], &pq->list[child]);|\\
+      \lstinline| return parent;|\\
+      }
+  }{
+    \state{
+        & pq = PQ\_init(leq,n) \land \\
+        & 0 \leq child < pq\to size \land \\
+        & parent = (child-1)/2 \\
+    }
+  } \\
+  &\\
+    & \equiv \state{
+        & pq = PQ\_init(leq,n) \land \\
+        & 0 \leq child < pq\to size \land \\
+        & parent = (child-1)/2 \land \\
+        & Order\_up(pq,child,parent) = true \implies \\
+        & \left\{ \begin{aligned}
+        & Priority(pq,parent)=Priority(pq,parent_0) \land  & \text{si }Priority(pq,parent_0) \leq Priority(pq,child_0)  \\
+        & Id(pq,parent)=Id(pq,parent_0) \land &\\
+        & Priority(pq,child)=Id(pq,child_0) \land &\\
+        & Id(pq,child)=Id(pq,child_0) &\\
+        & Priority(pq,parent)=Priority(pq,child_0) \land  & \text{sinon }  \\
+        & Id(pq,parent)=Id(pq,child_0) \land &\\
+        & Priority(pq,child)=Id(pq,parent_0) \land &\\
+        & Id(pq,child)=Id(pq,parent_0) &\\
+      \end{aligned} \right.
+    } \\
+    & \Rightarrow \post\\
+\end{flalign*}
+
+\subsubsection{Preuve de $add\_to\_pq$}
+Son environement :
+\begin{lstlisting}
+struct PQ {
+    Node_PQ_t list;
+    int size;
+    int capacity;
+    float (*leq)(float, float);
+};
+typedef struct PQ* PQ_t;
+PQ_t add_to_pq(PQ_t pq, float priority, int id)
+\end{lstlisting}
+\begin{flalign*}
+\pre \equiv & \state{
+  & pq = PQ\_init(leq,n) \land \\
+  & 0 \leq priority \land \\
+  & pq\to size < pq\to capacity \land\\
+  & \forall i,  0 \leq i < pq\to size \implies pq\to list[i].id \neq id \\
+}\\
+& \\
+\post \equiv & \state{
+  & pq = PQ\_init(leq,n) \land \\
+  & pq\to size = pq_0\to size+1 \land \\
+  & \exists i , 0 \leq i < pq\to size : pq\to list[i].priority = priority \land pq\to list[i].id = id \land\\
+  & Order\_up(pq,(pq\to size)-1,0) = true \\
+}
+\end{flalign*}
+Démonstration par la plus forte précondition :
+\begin{flalign*}
+  & \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|pq->size++;|\\
+      \lstinline|pq->list[pq->size-1].id:=id;|\\
+      \lstinline|pq->list[pq->size-1].priority:=priority;|\\
+      \lstinline|int i:=pq->size-1;|\\
+      }
+  }{
+      \state{
+    & pq_0 = PQ\_init(leq,n) \land \\
+    & 0 \leq priority \land \\
+    & pq_0\to size < pq_0\to capacity \land\\
+    & \forall i,  0 \leq i < pq_0\to size \implies pq_0\to list[i].id \neq id \\
+  }
+  } \\
+  &\\
+  & \equiv \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|pq->list[pq->size-1].id:=id;|\\
+      \lstinline|pq->list[pq->size-1].priority:=priority;|\\
+      \lstinline|int i:=pq->size-1;|\\
+      }
+  }{
+      \state{
+    & pq_0 = PQ\_init(leq,n) \land \\
+    & 0 \leq priority \land \\
+    & pq_0\to size < pq_0\to capacity \land\\
+    & \forall i,  0 \leq i < pq_0\to size \implies pq_0\to list[i].d \neq id \land\\
+    & pq\to size = pq_0\to size+1  \\
+  }
+  } \\
+  &\\
+  & \equiv \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|pq->list[pq->size-1].priority=priority;|\\
+      \lstinline|int i:=pq->size-1;|\\
+      }
+  }{
+    \state{
+    & pq_0 = PQ\_init(leq,n) \land \\
+    & 0 \leq priority \land \\
+    & pq_0\to size < pq_0\to capacity \land\\
+    & \forall i,  0 \leq i < pq_0\to size \implies pq_0\to list[i].id \neq id \land\\
+    & pq\to size = pq_0\to size+1  \land\\
+    & pq\to list[pq\to size-1].id=id;\\
+  }
+  } \\
+  &\\
+  & \equiv \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|int i:=pq->size-1;|\\
+      }
+  }{
+    \state{
+    & pq_0 = PQ\_init(leq,n) \land \\
+    & 0 \leq priority \land \\
+    & pq_0\to size < pq_0\to capacity \land\\
+    & \forall i,  0 \leq i < pq_0\to size \implies pq_0\to list[i].id \neq id \land\\
+    & pq\to size = pq_0\to size+1  \land\\
+    & pq\to list[pq\to size-1].id=id \land\\
+    & pq\to list[pq\to size-1].priority=priority\\
+  }
+  } \\
+  &\\
+& \equiv 
+    \state{
+    & pq_0 = PQ\_init(leq,n) \land \\
+    & 0 \leq priority \land \\
+    & pq_0\to size < pq_0\to capacity \land\\
+    & \forall i,  0 \leq i < pq_0\to size \implies pq_0\to list[i].id \neq id \land\\
+    & pq\to size = pq_0\to size+1  \land\\
+    & pq\to list[pq\to size-1].id=id \land\\
+    & pq\to list[pq\to size-1].priority=priority \land\\
+    & i=pq\to size-1 \\
+  }\\
+\end{flalign*}
+Dans la fonction $add\_to\_pq$, survient une boucle. Nous devons donc définir l'invariant de cette boucle.
+\begin{lstlisting}
+  while( i > 0 ){
+      i = order_lineage_up(pq, i);
+  }
+\end{lstlisting}
+\begin{flalign*}
+  I \equiv & \state{
+    & pq = PQ\_init(leq,n) \land \\
+    & 0 \leq priority \land \\
+    & pq_0\to size < pq_0\to capacity \land\\
+    & \forall k,  0 \leq k < pq_0\to size \implies pq_0\to list[k].id \neq id \land\\
+    & pq\to size = pq_0\to size+1  \land\\
+    & \exists j , 0 \leq j < pq\to size : pq\to list[j].priority = priority \land pq\to list[j].id = id \land\\
+    & Order\_up(pq,pq\to size-1,i) = true \\
+  }\\
+  B \equiv & i > 0\\
+\end{flalign*}
+Tant que la condition de la boucle est vraie, nous pouvons facilement démontrer que l'invariant est maintenu car
+un incrément de la boucle n'impacte pas les 6 premières conditions de l'invariant.
+Quant à la 7ème condition, elle est également maintenue car l'index
+i est sans cesse incrémenter vers une valeur qui se rapproche de 0 grâce à la fonction
+$i = (i_0-1)/2$. De plus, la fonction $order\_lineage\_up$ a déjà été prouvée plus haut et elle garantit que 
+l'ordre du tas est maintenu pour la paire d'index $i$ et $(i_0-1)/2$.
+Au fur et à mesure que $i$ diminue, la séquence d'éléments [enfant-parent] pour lequelle l'ordre du tas est garanti s'agrandit.
+
+A la sortie de la boucle, nous avons donc :
+\begin{flalign*}
+  I \land \neg B \equiv & \state{
+    & pq = PQ\_init(leq,n) \land \\
+    & 0 \leq priority \land \\
+    & pq_0\to size < pq_0\to capacity \land\\
+    & \forall k,  0 \leq k < pq_0\to size \implies pq_0\to list[k].id \neq id \land\\
+    & pq\to size = pq_0\to size+1  \land\\
+    & \exists j , 0 \leq j < pq\to size : pq\to list[j].priority = priority \land pq\to list[j].id = id \land\\
+    & i \leq 0\\
+    & Order\_up(pq,pq\to size-1,0) = true \land \\
+  }\\
+  \implies & \post
+\end{flalign*}
+
+
+\subsection{Prouver $\{P\}INIT\{I\}$ avant d'entrer dans la boucle}
+Dans la première partie de $INIT$ (définie comme $INIT_1$), différentes structures vont être mises en mémoire. 
+Voici le dévelopement $\{P\}INIT_1\{P_1\}$:
+\begin{flalign*}
+  P_1 \equiv &\ppsp{
+    \parbox{0.35\linewidth}{
+      \lstinline|PQ_t pq := create_pq(leq, n);|\\
+      \lstinline|float* dist_from_source = (float*)malloc(n*sizeof(float));|\\
+      \lstinline|int* previous_nodes = (int*)malloc(n*sizeof(int));|\\
+      \lstinline|bool* explored = (bool*)malloc(n*sizeof(bool));|\\
+      }
+  }{
+    \state{
+      & 0 < n \land \\
+      & 0 \leq s < n \land 0 \leq d < n \land \\
+      & w[0..n-1][0..n-1] \text{ initialisé} \land \\
+      & G\_non\_oriente(n) = true \land \\  
+      & \text{path[null] initialisé} \land \\
+    }
+  } \\
+  &\\
+  \equiv & \ppsp{
+        \parbox{0.35\linewidth}{
+      \lstinline|float* dist_from_source = (float*)malloc(n*sizeof(float));|\\
+      \lstinline|int* previous_nodes = (int*)malloc(n*sizeof(int));|\\
+      \lstinline|bool* explored = (bool*)malloc(n*sizeof(bool));|\\
+      }
+  }{
+    \state{
+      & 0 < n \land \\
+      & 0 \leq s < n \land 0 \leq d < n \land \\
+      & w[0..n-1][0..n-1] \text{ initialisé} \land \\
+      & G\_non\_oriente(n) = true \land \\  
+      & \text{path[null] initialisé} \land \\
+      & pq = PQ\_init(leq,n) \land  \\
+    }
+  } \\
+  &\\
+  \equiv & \ppsp{
+        \parbox{0.35\linewidth}{
+      \lstinline|int* previous_nodes = (int*)malloc(n*sizeof(int));|\\
+      \lstinline|bool* explored = (bool*)malloc(n*sizeof(bool));|\\
+      }
+  }{
+    \state{
+      & 0 < n \land \\
+      & 0 \leq s < n \land 0 \leq d < n \land \\
+      & w[0..n-1][0..n-1] \text{ initialisé} \land \\
+      & G\_non\_oriente(n) = true \land \\  
+      & \text{path[null] initialisé} \land \\
+      & pq = PQ\_init(leq,n) \land  \\
+      & dist\_from\_source[0..n-1] \text{ créé en mémoire} \land \\
+    }
+  } \\
+  &\\
+  \equiv & \ppsp{
+        \parbox{0.35\linewidth}{
+      \lstinline|bool* explored = (bool*)malloc(n*sizeof(bool));|\\
+      }
+  }{
+    \state{
+      & 0 < n \land \\
+      & 0 \leq s < n \land 0 \leq d < n \land \\
+      & w[0..n-1][0..n-1] \text{ initialisé} \land \\
+      & G\_non\_oriente(n) = true \land \\  
+      & \text{path[null] initialisé} \land \\
+      & pq = PQ\_init(leq,n) \land  \\
+      & dist\_from\_source[0..n-1] \text{ créé en mémoire} \land \\
+      & previous\_nodes[0..n-1] \text{ créé en mémoire} \land \\
+    }
+  } \\
+  &\\
+  \equiv & \state{
+      & 0 < n \land \\
+      & 0 \leq s < n \land 0 \leq d < n \land \\
+      & w[0..n-1][0..n-1] \text{ initialisé} \land \\
+      & G\_non\_oriente(n) = true \land \\  
+      & \text{path[null] initialisé} \land \\
+      & pq = PQ\_init(leq,n) \land  \\
+      & dist\_from\_source[0..n-1] \text{ créé en mémoire} \land \\
+      & previous\_nodes[0..n-1] \text{ créé en mémoire} \land \\
+      & explored[0..n-1] \text{ créé en mémoire} \\
+  }\\
+\end{flalign*}
+Dans $INIT_2$, une boucle est utilisée pour définir des valeurs initiales pour les 
+structures crées en mémoire à l'étape précédente.
+Dès lors, nous pouvons déduire de façon trivial que les structures crées précédemment
+seront initialisées suite au passage dans cette boucle. 
+Voici le dévelopement $\{P_1\}INIT_2\{P_2\}$:
+\begin{flalign*}
+ P_2 \equiv & \ppsp{
+    \parbox{0.35\linewidth}{\lstinline|for \(int i := 0; i < n; i++\)\{
+  dist_from_source[i] := FLT_MAX;
+  previous_nodes[i] := -1;
+  explored[i] := false;\}|}
+  }{
+    \state{
+      & 0 < n \land \\
+      & 0 \leq s < n \land 0 \leq d < n \land \\
+      & w[0..n-1][0..n-1] \text{ initialisé} \land \\
+      & G\_non\_oriente(n) = true \land \\  
+      & \text{path[null] initialisé} \land \\
+      & pq = PQ\_init(leq,n) \land  \\
+      & dist\_from\_source[0..n-1] \text{ créé en mémoire} \land \\
+      & previous\_nodes[0..n-1] \text{ créé en mémoire} \land \\
+      & explored[0..n-1] \text{ créé en mémoire} \land \\
+    }}\\
+    & \\
+    &\text{Comme la boucle permet d'initialisé tous les éléments de ces 3 tableaux à leur valeur initiales:}\\
+    & \\
+    \equiv &  \state{
+      & 0 < n \land \\
+      & 0 \leq s < n \land 0 \leq d < n \land \\
+      & w[0..n-1][0..n-1] \text{ initialisé} \land \\
+      & G\_non\_oriente(n) = true \land \\  
+      & \text{path[null] initialisé} \land \\
+      & pq = PQ\_init(leq,n) \land  \\
+      & dist\_from\_source[0..n-1] \text{ initialisé} \land \\
+      & previous\_nodes[0..n-1] \text{ initialisé} \land \\
+      & explored[0..n-1] \text{ initialisé} \land \\
+    }\\
+    & \\
+    & \text{Etant donné l'absence de modifications apportés sur $n$, $w$, $s$ et $d$ 
+    jusq'à présent dans $INIT_1$ et $INIT_2$:}\\
+    & \\
+    \equiv &  \state{
+      & n = n_0 \land  w = w_0 \land \\
+      & s = s_0 \land d = d_0 \land \\& \text{path[null] initialisé} \land \\
+      & G\_non\_oriente(n) = true \land \\  
+      & \text{path[null] initialisé} \land \\
+      & pq = PQ\_init(leq,n) \land  \\
+      & dist\_from\_source[0..n-1] \text{ initialisé} \land \\
+      & previous\_nodes[0..n-1] \text{ initialisé} \land \\
+      & explored[0..n-1] \text{ initialisé} \land \\
+    }\\
+    & \\
+    & \text{Par l'expression mathématique \eqref{eq:explo_init}, nous pouvons simplifier en :}\\
+    & \\
+        \equiv &  \state{
+          & Exploration\_init(n,w,s,d, path) = true\\
+    }\\
+\end{flalign*}
+
+Dans $INIT_3$, on va se concentrer sur le point de départ que l'on va initialiser à 0. 
+Voici le developement de $\{P_2\}INIT_3\{P_3\}$. 
+On y utilise l'expression mathématique~\eqref{eq:prioritaire} pour exprimer la post-condition 
+de $peek\_pq(pq)$.
+\begin{flalign*}
+  \equiv & \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|dist_from_source[s] := 0.0;|\\
+      \lstinline|add_to_pq(pq, dist_from_source[s], s);|\\
+      \lstinline|Node_PQ_t current_node := peek_pq(pq);|\\
+      \lstinline|int k := current_node->id;|\\
+    }
+  }{
+    \state{
+      & Exploration\_init(n,w,s,d, path) = true\\
+    }
+  } \\
+  & \\
+  \equiv & \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|add_to_pq(pq, dist_from_source[s], s);|\\
+      \lstinline|Node_PQ_t current_node := peek_pq(pq);|\\
+      \lstinline|int k := current_node->id;|\\
+    }
+  }{
+    \state{
+      & Exploration\_init(n,w,s,d, path) = true\\
+      & distance\_from\_source[s] = 0.0 \land \\
+    }
+  } \\
+    & \\
+  \equiv & \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|Node_PQ_t current_node := peek_pq(pq);|\\
+      \lstinline|int k := current_node->id;|\\
+    }
+  }{
+    \state{
+      & Exploration\_init(n,w,s,d, path) = true\\
+      & distance\_from\_source[s] = 0.0 \land \\
+      & s = Prioritaire(pq) \land \\
+    }
+  } \\
+    & \\
+  \equiv & \ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|int k := current_node->id;|\\
+    }
+  }{
+    \state{
+      & Exploration\_init(n,w,s,d, path) = true\\
+      & distance\_from\_source[s] = 0.0 \land \\
+      & s = Prioritaire(pq) \land \\
+      & current\_node := peek\_pq(pq);
+    }
+  } \\
+  & \\
+  & \parbox{0.9\linewidth}{Vu que $distance\_from\_source[s]$ est bien la plus petite distance possibles,
+  et que le chemin le plus court d'un point à lui-même n'est autre que lui même et $k$ est ici égale à $s$,
+  il est trivial de démontrer $path\_k$ et $k = Prioritaire(pq)$ }\\
+  & \\
+  \equiv & \state{
+      & Exploration\_init(n,w,s,d, path) = true\\
+      & distance\_from\_source[s] = 0.0 \land \\
+      & k = s \land\\
+      & k = Prioritaire(pq) \land \\
+      & path\_k = Chemin(w,m,s,k) \land \\
+      & distance\_from\_source[k] = Min(Parcours(w,path\_k,\#path\_k,s,k),Parcours\_possibles(w,s,k)) \\
+    }
+   \\
+   \Rightarrow & I\\
+\end{flalign*}
+
+Dès lors, nous avons réussi à prouver que $\{P\}INIT\{I\}$ est vrai.
+
+\subsection{Prouver $\{I \land B\}ITER\{I\}$ est vrai après une itération de la boucle}
+Voici le corps de la boucle:
+\begin{lstlisting}
+while (explored[d] == false && !is_pq_empty(pq)) {
+    current_node = peek_pq(pq);
+    k = current_node->id;
+    // Marque noeud courant comme explore
+    explored[k] = true;
+    if (k != d) {
+        // Explorer les voisins du noeud courant
+        for (unsigned int i = 0; i < n; i++) {
+            w_k=w[k][i];
+            // Si le noeud voisin n'a pas encore ete explore
+            // Un noeud j est voisin de i si 0<=w[i][j]<+inf
+            if (!isinf(w_k) && explored[i] == false) {
+                new = dist_from_source[k] + w_k;
+                // Le noeud voisin n'a pas ete visite auparavant apd d'un autre noeud: enlever l'ancienne distance de PQ
+                if (new<dist_from_source[i]){
+                    if( previous_nodes[i]!=-1){
+                        remove_id_from_pq(pq, i);
+                    }
+                    dist_from_source[i]=new;
+                    previous_nodes[i]=k;
+                    add_to_pq(pq,new,i);
+                }
+                // nouvelle distance plus longue
+                    // Pas d'action
+            }
+        }
+        // Enlever noeud explore de la file de priorite
+        serve_pq(pq);
+    }
+}
+\end{lstlisting}
+
+
+Dans notre situation, $ITER$ peut se décomposer comme suit:
+\begin{enumerate}
+  \item $PRE\_FOR$ où on va se concentrer sur les instructions se rapportant à 
+  la valeur prioritaire $k$ de la file de priorité $pq$ qui se passent avant l'entrée dans 
+  la boucle "for". 
+  \item $FOR$ où on va itérer à travers tous les autres noeuds. Cela nécéssite de poser un sous-invariant
+   $I_1$, une sous-condition de sortie de cette boucle $\neg B_4$ et
+    $ITER_1$ qui est le corp itératif de la boucle.
+  \item $CONDITIONS$ est équivalent à $ITER_1$ et représente les instructions pour une itération 
+  de cette boucle à invariant $I_1$. Celle-ci comporte une cascade de conditions.
+  \item $POST\_FOR$ qui comporte les dernières instructions de $ITER$ après 
+  la boucle de l'invariant $I_1$.
+\end{enumerate}
+\subsubsection{Obtenir les conditions initiales avant l'entrée dans la boucle $FOR$}
+
+\begin{flalign*}
+  P_4 \equiv &\ppsp{
+     \parbox{0.3\linewidth}{
+          \lstinline|current_node := peek_pq(pq);|\\
+          \lstinline|k := current\_node->id;|\\
+          \lstinline|explored[k] = true;|\\
+          \lstinline|if(k != d)|\\
+          \lstinline|FOR;|\\
+        }
+  }
+  {\state{
+      & Exploration\_init(n, w, s, d, path) = true\\
+    }
+  }\\
+  &\\
+  \equiv & \ppsp{
+     \parbox{0.3\linewidth}{
+          \lstinline|k := current\_node->id;|\\
+          \lstinline|explored[k] = true;|\\
+          \lstinline|if(k != d)|\\
+          \lstinline|FOR;|\\
+        }
+  }
+  {\state{
+      & Exploration\_init(n, w, s, d, path) = true \land\\
+      & current\_node := peek\_pq(pq)\\
+    }
+  }\\
+  &\\
+    \equiv & \ppsp{
+     \parbox{0.3\linewidth}{
+          \lstinline|explored[k] = true;|\\
+          \lstinline|if(k != d)|\\
+          \lstinline|FOR;|\\
+        }
+  }
+  {\state{
+      & Exploration\_init(n, w, s, d, path) = true \land\\
+      & k = Prioritaire(pq)\\
+    }
+  }\\
+  &\\
+      \equiv & \ppsp{
+     \parbox{0.3\linewidth}{
+          \lstinline|if(k != d)|\\
+          \lstinline|FOR;|\\
+        }
+  }
+  {\state{
+      & Exploration\_init(n, w, s, d, path) = true \land\\
+      & k = Prioritaire(pq) \land\\
+      & explored[k] = true\\
+    }
+  }\\
+  &\\
+  \equiv & \ppsp{
+    \parbox{0.1\linewidth}{
+          \lstinline|FOR;|\\
+        }
+  }
+  {\state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land\\
+    & explored[k] = true \land\\
+    & k \neq d\\
+  }
+  }\lor
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land\\
+    & explored[k] = true \land\\
+    & k = d\\
+  }\\
+\end{flalign*}
+
+Seule la première partie de la disjonction est à considérer comme conditions initiales de la boucle $FOR$. 
+
+\subsubsection{Trouver la postcondition $Q1$ suite à $CONDITIONS$}
+Tout d'abord, nous devons faire une preuve de programme pour la triple cascade de conditions suivantes :
+\begin{lstlisting}
+if (!isinf(w_k) && explored[i] == false) {
+  new = dist_from_source[k] + w_k;
+  // Le noeud voisin n'a pas ete visite auparavant apd d'un autre noeud: enlever l'ancienne distance de PQ
+  if (new<dist_from_source[i]){
+      if( previous_nodes[i]!=-1){
+          remove_id_from_pq(pq, i);
+      }
+      dist_from_source[i]=new;
+      previous_nodes[i]=k;
+      add_to_pq(pq,new,i);
+  }
+  // nouvelle distance plus longue
+      // Pas d'action
+}
+\end{lstlisting}
+Distinguons les différentes parties de cette condition.
+\begin{flalign*}
+R \equiv &
+  \left(
+      \begin{aligned}
+        \parbox{0.50\linewidth}{
+          \lstinline|if (! isinf ( w_k ) && explored [ i ] == false )\{|\\
+          \lstinline|new := dist_from_source[k] + w_k;|\\
+          \lstinline|if(new<dist_from_source[i])\{|\\
+          \lstinline|if(previous_node[i]!=-1)\{|\\
+          \lstinline|remove_id_from_pq(pq,i);\}|\\
+          \lstinline|dist_from_source[i]=new;|\\
+          \lstinline|previous_node[i]=k;|\\
+          \lstinline|add_to_pq(pq,new,i);\}\}|\\
+        }
+      \end{aligned}
+  \right)\\
+C_1 \equiv & \state{
+  & w\_k < +\infty \land \\
+  & explored[i] = false \\
+}\\
+&\\
+IF_1 \equiv & 
+  \left(
+      \begin{aligned}
+        \parbox{0.35\linewidth}{
+          \lstinline|new := dist_from_source[k] + w_k;|\\
+          \lstinline|if(new<dist_from_source[i])\{|\\
+          \lstinline|if(previous_node[i]!=-1)\{|\\
+          \lstinline|remove_id_from_pq(pq,i);\}|\\
+          \lstinline|dist_from_source[i]=new;|\\
+          \lstinline|previous_node[i]=k;|\\
+          \lstinline|add_to_pq(pq,new,i);\}|\\
+        }
+      \end{aligned}
+  \right)\\
+&\\
+C_2 \equiv & \state{
+  & new<dist\_from\_source[i] \\
+}\\
+&\\
+IF_2 \equiv &
+  \left(
+      \begin{aligned}
+        \parbox{0.3\linewidth}{
+          \lstinline|if(previous_node[i]!=-1)\{|\\
+          \lstinline|remove_id_from_pq(pq,i);\}|\\
+          \lstinline|dist_from_source[i]=new;|\\
+          \lstinline|previous_node[i]=k;|\\
+          \lstinline|add_to_pq(pq,new,i);|\\
+        }
+      \end{aligned}
+  \right)\\
+&\\
+C_3 \equiv & \state{
+  & previous\_nodes[i] \neq -1 \\
+}\\
+&\\ 
+IF_3 \equiv & 
+  \left(
+      \begin{aligned}
+        \parbox{0.3\linewidth}{
+          \lstinline|remove_id_from_pq(pq,i);|\\
+        }
+      \end{aligned}
+  \right)\\
+\end{flalign*}
+Nous pouvons démontrer cette condition par plus fortes préconditions :
+% \begin{landscape}
+\begin{flalign*}
+ Q_1 \equiv &\ppsp{R}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \\
+  }
+}
+&\\
+ \equiv &\ppsp{IF_1}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \\
+  } \land C_1
+} \lor\\
+&\state{
+      & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \\
+} \land \neg C_1\\
+&\\
+\equiv &\ppsp{
+    \parbox{0.25\linewidth}{
+      \lstinline|new := dist_from_source[k] + w_k;|\\
+      $IF_2$\\
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+  }
+}\lor\\
+&\state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & \state{
+      & explored[i] = true \lor\\
+      & w\_k = +\infty\\
+    }\\
+} \\
+&\\
+\equiv &
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & \state{
+      & explored[i] = true \lor\\
+      & w\_k = +\infty\\
+    }\\
+} \lor
+\ppsp{IF_2}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \\
+  } \land B_2
+}\lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \\
+} \land \neg B_2\\
+&\\
+\equiv &
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & \state{
+      & explored[i] = true \lor\\
+      & w\_k = +\infty\\
+    }\\
+} \lor
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \\
+    & new \geq dist\_from\_source[i]\\
+  } \lor\\
+&\ppsp{
+      \parbox{0.2\linewidth}{
+      IF3\\
+      \lstinline|dist_from_source[i] := new;|\\
+      \lstinline|previous_node[i] := k;|\\
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i]\\
+  }
+}\\
+\end{flalign*}
+% \end{landscape}
+Concentrons nous sur la troisième partie de cette disjonction :
+\begin{flalign*}
+&\ppsp{
+      \parbox{0.2\linewidth}{
+      IF3\\
+      \lstinline|dist_from_source[i] := new;|\\
+      \lstinline|previous_node[i] := k;|\\
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \\
+  } 
+}\\
+&\\
+\equiv &\ppsp{
+      \parbox{0.2\linewidth}{
+      \lstinline|remove_id_from_pq(pq,i);|\\
+      \lstinline|dist_from_source[i] := new;|\\
+      \lstinline|previous_node[i] := k;|\\
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \\
+  } \land B_3
+} \lor \\
+&\ppsp{
+      \parbox{0.2\linewidth}{
+      \lstinline|dist_from_source[i] := new;|\\
+      \lstinline|previous_node[i] := k;|\\
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \\
+  } \land \neg B_3
+} 
+&\\
+\equiv &\ppsp{
+      \parbox{0.2\linewidth}{
+      \lstinline|dist_from_source[i] := new;|\\
+      \lstinline|previous_node[i] := k;|\\
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \land\\
+    & \forall e | 0<e<pq\to size-2 : Id(pq,e) \neq i \land \\
+    & pq\to size := pq\to size-1 \land\\
+    & Order\_down(pq,0) = true \\
+  } \land B_3
+} \lor \\
+&\ppsp{
+      \parbox{0.2\linewidth}{
+      \lstinline|dist_from_source[i] := new;|\\
+      \lstinline|previous_node[i] := k;|\\
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & previous\_node[0..n-1] \text{ initialisé} \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \\
+  } \land \neg B_3
+}
+&\\
+\equiv &\ppsp{
+      \parbox{0.2\linewidth}{
+      \lstinline|previous_node[i] := k;|\\
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \land\\
+    & \forall e | 0<e<pq\to size-2 : Id(pq,e) \neq i \land \\
+    & pq\to size := pq\to size-1 \land\\
+    & Order\_down(pq,0) = true \\
+    & dist_from_source[i] = new\\
+  } \land B_3
+} \lor \\
+&\ppsp{
+      \parbox{0.2\linewidth}{
+      \lstinline|previous_node[i] := k;|\\
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \\
+    & dist_from_source[i] = new\\
+  } \land \neg B_3
+}\\
+&\\
+ \equiv &\ppsp{
+      \parbox{0.2\linewidth}{
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \land\\
+    & \forall e | 0<e<pq\to size-2 : Id(pq,e) \neq i \land \\
+    & pq\to size := pq\to size-1 \land\\
+    & Order\_down(pq,0) = true \land \\
+    & dist\_from\_source[i] = new \land\\
+    & previous\_node[i] = k\\
+  } \land B_3
+} \lor \\
+&\ppsp{
+      \parbox{0.2\linewidth}{
+      \lstinline|add_to_pq(pq,new,i);|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \land\\
+    & dist\_from\_source[i] = new \land\\
+    & previous\_node[i] = k\\
+  } \land \neg B_3
+}\\
+&\\
+\equiv &\state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \land\\
+    & Order\_down(pq,0) = true \land \\
+    & dist\_from\_source[i] = new \land\\
+    & previous\_node_0[i] \neq -1 \land\\
+    & previous\_node[i] = k\land\\
+    & pq\to size = pq_0\to size \land \\
+    & \exists i , 0 \leq i < pq\to size : pq\to list[i].priority = new \land pq\to list[i].id = i \land\\
+    & Order(pq) = true \\
+}\lor \\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \land\\
+    & dist\_from\_source[i] = new \land\\
+    & previous\_node_0[i] = -1 \land\\
+    & previous\_node[i] = k\land\\
+    & pq\to size = pq_0\to size+1 \land \\
+    & \exists i , 0 \leq i < pq\to size : pq\to list[i].priority = new \land pq\to list[i].id = id \land\\
+    & Order(pq) = true \\
+}
+\end{flalign*}
+En reprenant les premières parties de la disjonction $Q_1$ laissé précédemment, nous avons :
+\begin{flalign*}
+ Q_1 \equiv &
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & \state{
+      & explored[i] = true \lor\\
+      & w\_k = +\infty\\
+    }\\
+} \lor
+ \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & explored[i] = false \land\\
+    & w\_k < +\infty \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new \geq dist\_from\_source[i]\\
+}\lor\\
+&\state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \land\\
+    & Order\_down(pq,0) = true \land \\
+    & dist\_from\_source[i] = new \land\\
+    & previous\_node_0[i] \neq -1 \land\\
+    & previous\_node[i] = k\land\\
+    & pq\to size = pq_0\to size \land \\
+    & \exists i , 0 \leq i < pq\to size : pq\to list[i].priority = new \land pq\to list[i].id = i \land\\
+    & Order(pq) = true \\
+}\lor \\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w\_k = w[k][i] \land\\
+    & w\_k < +\infty \land\\
+    & explored[i] = false \land\\
+    & new = dist\_from\_source[k] + w\_k \land\\
+    & new < dist\_from\_source[i] \land\\
+    & dist\_from\_source[i] = new \land\\
+    & previous\_node_0[i] = -1 \land\\
+    & previous\_node[i] = k\land\\
+    & pq\to size = pq_0\to size+1 \land \\
+    & \exists i , 0 \leq i < pq\to size : pq\to list[i].priority = new \land pq\to list[i].id = id \land\\
+    & Order(pq) = true \\
+}\\
+\end{flalign*}
+Pour simplifier $Q_1$, nous pouvons résumer qu'il existe une combinaison de conditions où
+ un changement est apporté aux différentes structures 
+ ($pq$, $dist\_from\_source$, $previous\_node$).
+Sinon celle-ci restent inchangées dans les autres conditions.
+
+\begin{flalign*}
+Q_1 \equiv &\state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    &\state{
+      & w[k][i] = +\infty \lor\\
+      & explored[i] = true \lor\\
+      & dist\_from\_source_0[k] + w[k][i] \geq dist\_from\_source_0[i]\\
+    } \land\\
+    & dist\_from\_source = dist\_from\_source_0 \land\\
+    & previous\_node = previous\_node_0 \land\\
+    & pq =pq_0 \land\\
+    & Order(pq) = true \\
+} \lor\\
+ & \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w[k][i] < +\infty \land\\
+    & explored[i] = false \land\\
+    & dist\_from\_source_0[k] + w[k][i] < dist\_from\_source_0[i]\land\\
+    & dist\_from\_source[i] = dist\_from\_source_0[k] + w[k][i] \land\\
+    & previous\_node[i] = k \land\\
+    & i \in pq \land\\
+    & Priority(pq,i) = dist\_from\_source_0[k] + w[k][i] \land\\
+    & Order(pq) = true \\
+}\\  
+\end{flalign*}
+
+\subsubsection{Trouver $I_1$ et prouver sa validité $\{I_1 \land B_1\}ITER_1\{I_1\}$ après une itération de la boucle}
+A partir de la postcondition $Q1$ de cette ensemble de conditions, 
+nous sommes en mesure de définir l'invariant $I_1$ de la boucle suivante :
+\begin{lstlisting}
+for (unsigned int i = 0; i < n; i++) {
+  w_k=w[k][i];
+  // Si le noeud voisin n'a pas encore ete explore
+  // Un noeud j est voisin de i si 0<=w[i][j]<+inf
+  if (!isinf(w_k) && explored[i] == false) {
+      new = dist_from_source[k] + w_k;
+      // Le noeud voisin n'a pas ete visite auparavant apd d'un autre noeud: enlever l'ancienne distance de PQ
+      if (new<dist_from_source[i]){
+          if( previous_nodes[i]!=-1){
+              remove_id_from_pq(pq, i);
+          }
+          dist_from_source[i]=new;
+          previous_nodes[i]=k;
+          add_to_pq(pq,new,i);
+      }
+      // nouvelle distance plus longue
+          // Pas d'action
+  }
+}  
+\end{lstlisting}
+\begin{flalign*}
+I_1 \equiv &\state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    &\state{
+      & w[k][i] = +\infty \lor\\
+      & explored[i] = true \lor\\
+      & dist\_from\_source_0[k] + w[k][i] \geq dist\_from\_source_0[i]\\
+    } \land\\
+    & dist\_from\_source = dist\_from\_source_0 \land\\
+    & previous\_node = previous\_node_0 \land\\
+    & pq =pq_0 \land\\
+    & Order(pq) = true \\
+} \lor\\
+ & \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w[k][i] < +\infty \land\\
+    & explored[i] = false \land\\
+    & dist\_from\_source_0[k] + w[k][i] < dist\_from\_source_0[i]\land\\
+    & dist\_from\_source[i] = dist\_from\_source_0[k] + w[k][i] \land\\
+    & previous\_node[i] = k \land\\
+    & i \in pq \land\\
+    & Priority(pq,i) = dist\_from\_source_0[k] + w[k][i] \land\\
+    & Order(pq) = true \\
+}\\  
+\end{flalign*}
+
+Démontrer que $\{I_1 \land B_1\}ITER_1\{I_1\}$ est vrai revient à vérifier quel impact 
+a la condition $B_1 \equiv i<n$ sur l'invariant $I_1 \iff Q_1$.
+Vu que $n=n_0$ par $Exploration\_init(n, w, s, d, path) = true$ et que 
+$n$ est totalement absent des instructions dans la boucle, il est trivial de démontrer 
+qu'itérer de nouveau à travers $ITER_1$ en utilisant $\{I_1 \land B_1\}$ 
+comme précondition de la boucle ne doit pas changer l'invariant de celle-ci.
+
+\subsubsection{Obtenir les conditions finales après le passage dans la boucle $FOR$}
+
+\begin{flalign*}
+  Q_2 \equiv & \ppsp{
+    \parbox{0.1\linewidth}{
+      \lstinline|serve(pq);|\\      
+    }
+  }
+  {
+    \state{
+    &\state{
+      & Exploration\_init(n, w, s, d, path) = true \land \\
+      & k = Prioritaire(pq_0) \land \\
+      & explored[k] = true \land \\
+      & k \neq d \land\\
+      &\state{
+        & w[k][i] = +\infty \lor\\
+        & explored[i] = true \lor\\
+        & dist\_from\_source_0[k] + w[k][i] \geq dist\_from\_source_0[i]\\
+      } \land\\
+      & dist\_from\_source = dist\_from\_source_0 \land\\
+      & previous\_node = previous\_node_0 \land\\
+      & pq =pq_0 \land\\
+      & Order(pq) = true \\
+    } \lor\\
+  & \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq_0) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w[k][i] < +\infty \land\\
+    & explored[i] = false \land\\
+    & dist\_from\_source_0[k] + w[k][i] < dist\_from\_source_0[i]\land\\
+    & dist\_from\_source[i] = dist\_from\_source_0[k] + w[k][i] \land\\
+    & previous\_node[i] = k \land\\
+    & i \in pq \land\\
+    & Priority(pq,i) = dist\_from\_source_0[k] + w[k][i] \land\\
+    & Order(pq) = true \\
+    }  
+    }
+  }\\
+&\\
+\equiv &\state{
+      & Exploration\_init(n, w, s, d, path) = true \land \\
+      & k = Prioritaire(pq_0) \land \\
+      & explored[k] = true \land \\
+      & k \neq d \land\\
+      &\state{
+        & w[k][i] = +\infty \lor\\
+        & explored[i] = true \lor\\
+        & dist\_from\_source_0[k] + w[k][i] \geq dist\_from\_source_0[i]\\
+      } \land\\
+      & dist\_from\_source = dist\_from\_source_0 \land\\
+      & previous\_node = previous\_node_0 \land\\
+      & \state{\forall l \in pq : Id(pq,l) \neq k \land Id(pq,l)=Id(pq_0,l) \land Priority(pq,l)=Priority(pq_0,l)} \land\\
+      & Order(pq) = true \\
+    } \lor\\
+  & \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq_0) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w[k][i] < +\infty \land\\
+    & explored[i] = false \land\\
+    & dist\_from\_source_0[k] + w[k][i] < dist\_from\_source_0[i]\land\\
+    & dist\_from\_source[i] = dist\_from\_source_0[k] + w[k][i] \land\\
+    & previous\_node[i] = k \land\\
+    & i \in pq \land\\
+    & Priority(pq,i) = dist\_from\_source_0[k] + w[k][i] \land\\
+    & \forall l \in pq : Id(pq,l) \neq k \land\\
+    & Order(pq) = true \\
+  }
+\end{flalign*}
+
+\subsubsection{Conclusion sur $\{I \land B\}ITER\{I\}$}
+Suite au passage complet dans $ITER$, nous obtenons la postcondition $Q_3$. Cela revient à 
+$Q_2$ au quel nous devons ajouter la deuxième partie de la disjonction $P_4$. 
+Cela donne :
+\begin{flalign*}
+Q_3 \equiv &\state{
+      & Exploration\_init(n, w, s, d, path) = true \land \\
+      & k = Prioritaire(pq_0) \land \\
+      & explored[k] = true \land \\
+      & k \neq d \land\\
+      &\state{
+        & w[k][i] = +\infty \lor\\
+        & explored[i] = true \lor\\
+        & dist\_from\_source_0[k] + w[k][i] \geq dist\_from\_source_0[i]\\
+      } \land\\
+      & dist\_from\_source = dist\_from\_source_0 \land\\
+      & previous\_node = previous\_node_0 \land\\
+      & \state{\forall l \in pq : Id(pq,l) \neq k \land Id(pq,l)=Id(pq_0,l) \land Priority(pq,l)=Priority(pq_0,l)} \land\\
+      & Order(pq) = true \\
+    } \lor\\
+  & \state{
+    & Exploration\_init(n, w, s, d, path) = true \land \\
+    & k = Prioritaire(pq_0) \land \\
+    & explored[k] = true \land \\
+    & k \neq d \land\\
+    & w[k][i] < +\infty \land\\
+    & explored[i] = false \land\\
+    & dist\_from\_source_0[k] + w[k][i] < dist\_from\_source_0[i]\land\\
+    & dist\_from\_source[i] = dist\_from\_source_0[k] + w[k][i] \land\\
+    & previous\_node[i] = k \land\\
+    & i \in pq \land\\
+    & Priority(pq,i) = dist\_from\_source_0[k] + w[k][i] \land\\
+    & \forall l \in pq : Id(pq,l) \neq k \land\\
+    & Order(pq) = true \\
+  }\lor\\
+  & \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land\\
+    & explored[k] = true \land\\
+    & k = d \land\\
+    & dist\_from\_source = dist\_from\_source_0 \land\\
+    & previous\_node = previous\_node_0 \land\\
+    & pq = pq_0\\
+  }\\
+&\\
+\end{flalign*}
+
+Souvenons de notre proposition pour $I$:
+\begin{flalign*}
+  I \equiv & \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = Min(Parcours(w,path\_k,\#path\_k,s,k),Parcours\_possibles(w,s,k)) \\
+  } 
+\end{flalign*}  
+
+Finalement, nous pouvons prouver que $Q_3 \implies I$ car :
+\begin{itemize}
+  \item Exploration\_init(n, w, s, d, path) = true dans $Q_3$ et $I$.
+  \item $k$ est bien défini comme l'élément prioritaire
+ de la file de priorité (la plus petite valeur de priorité) dans $Q_3$ et $I$.
+  \item Grâce aux expressions mathématiques~\eqref{eq:chemin_inverse}\eqref{eq:reverse}\eqref{eq:chemin}, 
+  $path\_k$ va être défini comme une liste chainée inversée issu de $previous\_node$. 
+  Celle-ci est bel et bien initialisée. 
+  Au fil des itérations, celle-ci est completée avec le noeud qui permet la
+  plus courte distance vers la source.
+  \item distance\_from\_source[k] est garantie comme la plus petite distance à la source car 
+  en analysant $Q_3$ celui-ci est mis à jour seulement lorsqu'une nouvelle distance à la source 
+  calculée via un nouveau noeud voisin est inférieur à une distance existante ; 
+  ce qui s'avère être la définition d'une valeur minimale.  
+\end{itemize}
+
+\subsection{Trouver $CLOT$}
+Voici la partie qui cloture l'algorithme suivant la boucle "while" dont l'invariant a été démontré précédemment.
+Celle-ci permet une réécriture dans une nouvelle structure du plus court chemin découvert durant cette
+boucle et de clairement définir comment gérer des cas limites. 
+Lors des preuves de programmation, les instructions "printf" sont ignorées car elles n'impactent pas les
+objets créés en mémoire. Pour ce programme, l'affichage de valeurs n'est pas précisés dans les postconditions.
+
+\begin{lstlisting}
+        // Cas limite
+    if(d==s){
+        unsigned int* my_path = (unsigned int*)malloc(sizeof(unsigned int));
+        my_path[0]=s;
+        *path=my_path;
+        printf("Distance totale du chemin: %.2f\n", 0.0);
+        printf("Nombre de noeuds dans le chemin: %u\n", 1);
+        clear_explo_objects(explored, dist_from_source, pq, previous_nodes);
+        return 1;
+    }
+
+    // Pas de chemin trouve entre source et destination
+    if(explored[d] == false && is_pq_empty(pq)){
+        printf("Pas de chemin trouve entre %i et %i\n",s,d);
+        printf("Nombre de noeuds dans le chemin: %u\n", 0);
+        clear_explo_objects(explored, dist_from_source, pq, previous_nodes);
+        return 0;
+    }
+
+    // Compter le nombre de noeuds dans le chemin
+    int i_node = d;
+    unsigned int path_n_nodes = 0;
+    while (previous_nodes[i_node] >= 0 && path_n_nodes <= n) {
+        path_n_nodes++;
+        i_node = previous_nodes[i_node];
+    }
+
+    // Allouer et reconstruire le chemin
+    unsigned int* my_path = (unsigned int*)malloc((path_n_nodes + 1) * sizeof(unsigned int)); // +1 pour inclure la source
+    i_node = d;
+    int count = 0;
+    while (previous_nodes[i_node] >= 0) {
+        my_path[path_n_nodes - count] = i_node;
+        count++;
+        i_node = previous_nodes[i_node];
+    }
+    my_path[path_n_nodes - count] = s; // Ajoute la source au debut
+        path_n_nodes++; // Inclure la source dans le compte
+    printf("Distance totale du chemin: %.2f\n", dist_from_source[d]);
+    printf("Nombre de noeuds dans le chemin: %u\n", path_n_nodes);
+    *path = my_path; // Assigner le tableau alloue a la variable de sortie
+
+    // Liberer les structures d'exploration
+    clear_explo_objects(explored, dist_from_source, pq, previous_nodes);
+    return path_n_nodes;
+\end{lstlisting}
+
+\subsection{Prouver $\{I \land \neg B\}CLOT\{Q\}$ est vrai après la fin de la boucle}
+Le premier cas limite est lorsque la source est identique au point d'arrivée.
+La post-condition à ce stade sera définie comme $Q_4$.
+
+\begin{flalign*}
+Q_4 \equiv &\ppsp
+{
+    \parbox{0.3\linewidth}{
+      \lstinline|if(d==s)\{|\\
+      \lstinline|unsigned int* my_path := (unsigned int*)malloc(sizeof(unsigned int));|\\
+      \lstinline|my_path[0]:=s;|\\
+      \lstinline|*path:=my_path;|\\
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return 1;\}|\\      
+    }
+}
+{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }
+  }
+}\\
+&\\
+\equiv &\ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|unsigned int* my_path := (unsigned int*)malloc(sizeof(unsigned int));|\\
+      \lstinline|my_path[0]:=s;|\\
+      \lstinline|*path:=my_path;|\\
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return 1;|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }
+} \land d = s}
+\lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }
+} \land d \neq s\\
+&\\
+\equiv &\ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|my_path[0]:=s;|\\
+      \lstinline|*path:=my_path;|\\
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return 1;|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d=s \land\\
+    & my\_path[0] \text{ créé en mémoire}\\
+} }
+\lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d\neq s\\
+}\\
+&\\
+\equiv &\ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|*path:=my_path;|\\
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return 1;|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d=s \land\\
+    & my\_path[0..m-1] \text{ initialisé} \land\\
+    & m = 1 \land\\
+    & my\_path[0]=s\\
+} }
+\lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d\neq s\\
+}\\
+&\\
+\equiv &\ppsp{
+    \parbox{0.3\linewidth}{
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return 1;|\\      
+    }
+}{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d=s \land\\
+    & my\_path[0..m-1] \text{ initialisé} \land\\
+    & m = 1 \land\\
+    & my\_path[0]=s\\
+    & path = my\_path[0..m-1]\\
+} }
+\lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d\neq s\\
+}\\
+&\\
+\equiv &\ppsp{
+    \parbox{0.1\linewidth}{
+      \lstinline|return 1;|\\      
+    }
+}{
+  \state{
+    & w=w0 \land n=n_0 \land s=s_0 \land d=d_0\land\\
+    & G\_non\_oriente(n) = true \land \\  
+    & \text{path[null] initialisé} \\
+    & d=s \land\\
+    & my\_path[0..m-1] \text{ initialisé} \land\\
+    & m = 1 \land\\
+    & my\_path[0]=s\\
+    & path = my\_path[0..m-1]\\
+} }
+\lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d\neq s\\
+}\\
+&\\
+Q_4 \equiv & 
+  \state{
+    & w=w0 \land n=n_0 \land s=s_0 \land d=d_0\land\\
+    & G\_non\_oriente(n) = true \land \\  
+    & \text{path[null] initialisé} \\
+    & d=s \land\\
+    & my\_path[0..m-1] \text{ initialisé} \land\\
+    & m = 1 \land\\
+    & my\_path[0]=s\\
+    & path = my\_path[0..m-1]\\
+    & shortest\_path = 1\\
+} 
+\lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d\neq s\\
+}\\
+&\\
+\end{flalign*}
+
+Le deuxième cas limite est celui où aucun chemin n'est découvert entre $s$ et $d$. 
+Pour celui-ci, je ne vais considérer que la deuxième partie de la disjonction $Q_4$ comme
+précondition.
+
+\begin{flalign*}
+Q_5 \equiv &\ppsp
+{
+    \parbox{0.3\linewidth}{
+      \lstinline|if(explored[d]== false && is_pq_empty(pq))\{|\\
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return 0;\}|\\      
+    }
+}
+{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = false \land \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d\neq s\\
+}
+}\\
+&\\
+\equiv &\ppsp
+{
+    \parbox{0.2\linewidth}{
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return 0;|\\      
+    }
+}
+{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = false \land \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d\neq s\\
+}
+} \land\state{
+  &explored[d]==false \land\\ 
+  &pq\to size = 0\\}\lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    &\state{
+      & explored[d] = true \lor \\
+      & pq\to size = 0 \\
+      }\land\\
+    & d\neq s\\
+} \land{\state{
+  &explored[d]==true \lor\\ 
+  &pq\to size > 0\\
+}}\\
+&\\
+\equiv &\ppsp
+{
+    \parbox{0.2\linewidth}{
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return 0;|\\      
+    }
+}
+{
+  \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==false \land\\ 
+    & pq\to size = 0 \\
+}
+} \lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true
+} \\
+&\\
+\equiv &\ppsp
+{
+    \parbox{0.1\linewidth}{
+      \lstinline|return 0;|\\      
+    }
+}
+{
+  \state{
+    & w=w0 \land n=n_0 \land s=s_0 \land d=d_0\land\\
+    & G\_non\_oriente(n) = true \land \\  
+    & \text{path[null] initialisé} \\
+    & d\neq s \land\\
+    &explored[d]==false \land\\ 
+    & pq\to size = 0 \\
+}
+} \lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true
+} \\
+&\\
+Q_5 \equiv &
+  \state{
+    & w=w0 \land n=n_0 \land s=s_0 \land d=d_0\land\\
+    & G\_non\_oriente(n) = true \land \\  
+    & \text{path[null] initialisé} \\
+    & d\neq s \land\\
+    &explored[d]==false \land\\ 
+    & pq\to size = 0 \land\\
+    & shortest\_path = 0\\
+} \lor\\
+& \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true
+} \\
+&\\
+\end{flalign*}
+
+La troisième partie se concentre sur le comptage du nombre de noeuds dans le chemin.
+Encore une fois je ne vais considérer que la deuxième partie de la disjonction $Q_5$ 
+comme précondition.
+Cette troisième partie comporte une boucle "while". 
+L'invariant $I_2$ de la boucle inclut, en plus de $Q_5$ et des conditions initiales à la boucle, 
+la condition suivante définie grâce 
+à l'expression mathématique~\eqref{eq:chemin_inverse} :
+\begin{flalign*}
+I_2 \supseteq \state{path\_n\_nodes = \#Chemin\_inverse(w,n,i\_node,d)}
+\end{flalign*}
+
+A la sortie de boucle, la condition suivante est incluse dans $I_2 \land \neg B_2$ :
+ \begin{flalign*}
+I_2 \land \neg B_2 \supseteq \state{path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)}
+\end{flalign*}
+
+
+\begin{flalign*}
+Q_6 \equiv & \ppsp{
+      \parbox{0.35\linewidth}{
+      \lstinline|int i_node := d;|\\
+      \lstinline|unsigned int path_n_nodes := 1;|\\ 
+      \lstinline|while (previous_nodes[i_node] >= 0) \{|\\ 
+      \lstinline|path_n_nodes++;;|\\ 
+      \lstinline|i_node = previous_nodes[i_node];\}|\\ 
+    }
+}{
+   \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true
+} 
+}\\
+&\\
+ \equiv & \ppsp{
+      \parbox{0.35\linewidth}{
+      \lstinline|unsigned int path_n_nodes := 1;|\\ 
+      \lstinline|while (previous_nodes[i_node] >= 0) \{|\\ 
+      \lstinline|path_n_nodes++;;|\\ 
+      \lstinline|i_node := previous_nodes[i_node];\}|\\ 
+    }
+}{
+   \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = d \\
+} 
+}\\
+&\\
+ \equiv & \ppsp{
+      \parbox{0.35\linewidth}{
+      \lstinline|while (previous_nodes[i_node] >= 0) \{|\\ 
+      \lstinline|path_n_nodes++;|\\ 
+      \lstinline|i_node = previous_nodes[i_node];\}|\\ 
+    }
+}{
+   \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = 1\\
+} 
+}\\
+Q_6 \equiv &
+   \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = s \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\\
+  } \\
+&\\
+\end{flalign*}
+
+La quatrième partie se concentre sur la reconstruction du chemin le plus court dans un 
+tableau d'entiers où un élément représente un noeud du graphe.
+Cette partie inclus également une boucle "while". 
+Posons son invariant $I_3$ comme ayant la condition suivante, en plus des préconditions $Q_6$ et des 
+conditions initiales à la boucle :
+\begin{flalign*}
+I_3 \supseteq \state{my\_path = Chemin(w,m,i\_node,d)}  
+\end{flalign*}
+
+Se faisant, la condition à la sortie de la boucle inclut la condition suivante :
+\begin{flalign*}
+I_3 \land \neg B_3 \supseteq \state{my\_path = Chemin(w,m,s,d)}  
+\end{flalign*}
+
+
+\begin{flalign*}
+  Q_7 \equiv & \ppsp{
+      \parbox{0.35\linewidth}{
+      \lstinline|unsigned int* my_path := (unsigned int*)malloc((path_n_nodes) * sizeof(unsigned int));|\\ 
+      \lstinline|i_node:=d;|\\
+      \lstinline|int count := -1;|\\ 
+      \lstinline|while (previous_nodes[i_node] >= 0) \{|\\ 
+      \lstinline|my_path[path_n_nodes + count] = i_node;|\\
+      \lstinline|count--;|\\ 
+      \lstinline|i_node = previous_nodes[i_node];\}|\\ 
+    }
+}{
+    \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = s \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\\
+  } 
+}\\
+&\\
+\equiv & \ppsp{
+      \parbox{0.35\linewidth}{
+      \lstinline|i_node=d;|\\
+      \lstinline|int count := -1;|\\ 
+      \lstinline|while (previous_nodes[i_node] >= 0) \{|\\ 
+      \lstinline|my_path[path_n_nodes + count] = i_node;|\\
+      \lstinline|count--;|\\ 
+      \lstinline|i_node = previous_nodes[i_node];\}|\\ 
+    }
+}{
+    \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = s \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ créé en mémoire }
+  } 
+}\\
+&\\
+\equiv & \ppsp{
+      \parbox{0.35\linewidth}{
+      \lstinline|int count := -1;|\\ 
+      \lstinline|while (previous_nodes[i_node] >= 0) \{|\\ 
+      \lstinline|my_path[path_n_nodes + count] := i_node;|\\
+      \lstinline|count--;|\\ 
+      \lstinline|i_node := previous_nodes[i_node];\}|\\ 
+    }
+}{
+    \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ créé en mémoire }
+  } 
+}\\
+&\\
+\equiv & \ppsp{
+      \parbox{0.35\linewidth}{ 
+      \lstinline|while (previous_nodes[i_node] >= 0) \{|\\ 
+      \lstinline|my_path[path_n_nodes + count] := i_node;|\\
+      \lstinline|count--;|\\ 
+      \lstinline|i_node = previous_nodes[i_node];\}|\\ 
+    }
+}{
+    \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ créé en mémoire }\land\\
+    & count = -1
+  } 
+}\\
+&\\
+Q_7 \equiv & 
+    \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ initialisé }\land\\
+    & my\_path = Chemin(w,m,s,d)\\
+  }\\
+&\\
+\end{flalign*}
+
+La dernière partie se concentre sur le retour des valeurs de $my\_path[0..m-1]$
+au niveau du pointeur initialisé à $path$ pour le cas général ainsi que 
+le retour de la fonction $shortest\_path$ qui correspond à la taille $m$ du tableau $my\_path$.
+Il y a également la libération de la mémoire pour plusieurs objets.
+
+\begin{flalign*}
+Q_8 \equiv & \ppsp{
+      \parbox{0.35\linewidth}{ 
+      \lstinline|*path := my_path;|\\ 
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\ 
+      \lstinline|return path_n_nodes;|\\ 
+    }
+}{
+    \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k) \land \\
+    & distance\_from\_source[k] = \\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ initialisé }\land\\
+    & my\_path = Chemin(w,m,s,d)\\
+  } 
+}\\
+&\\
+\equiv & \ppsp{
+      \parbox{0.35\linewidth}{ 
+      \lstinline|clear_explo_objects(explored, dist_from_source, pq, previous_nodes);|\\
+      \lstinline|return path_n_nodes;|\\ 
+    }
+}{
+    \state{
+    & Exploration\_init(n, w, s, d, path) = true \land\\
+    & k = Prioritaire(pq) \land \\
+    & path\_k = Chemin(w,m,s,k)\:|\:\\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & d\neq s \land\\
+    &explored[d]==true\land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ initialisé }\land\\
+    & my\_path = Chemin(w,m,s,d)\land\\
+    & path = my\_path[0..m-1]\\
+  } 
+}\\
+&\\
+\equiv & \ppsp{
+      \parbox{0.35\linewidth}{ 
+      \lstinline|return path_n_nodes;|\\ 
+    }
+}{
+    \state{
+    & n=n_0 \land w=w_0 \land s=s_0 \land d=d_0 \land\\
+    & G\_non\_oriente(n) = true\land\\
+    & \text{path[null] initialisé} \\
+    & path\_k = Chemin(w,m,s,k)\:|\:\\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ initialisé }\land\\
+    & my\_path = Chemin(w,m,s,d)\land\\
+    & path = my\_path[0..m-1]\\
+  } 
+}\\
+&\\
+Q_8 \equiv &\state{
+    & n=n_0 \land w=w_0 \land s=s_0 \land d=d_0 \land\\
+    & G\_non\_oriente(n) = true\land\\
+    & \text{path[null] initialisé} \\
+    & path\_k = Chemin(w,m,s,k)\:|\:\\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ initialisé }\land\\
+    & my\_path = Chemin(w,m,s,d)\land\\
+    & path = my\_path[0..m-1]\\
+    & shortest\_path =  path\_n\_nodes\\
+}\\
+&\\
+\end{flalign*}
+
+Nous avions laissé de côté, la première partie des disjonctions $Q_4$ et $Q_5$. 
+La postconditions $Q_9$ se compose de celle-ci ainsi que $Q_8$.
+\begin{flalign*}
+Q_9 \equiv &\state{
+    & w=w0 \land n=n_0 \land s=s_0 \land d=d_0\land\\
+    & G\_non\_oriente(n) = true \land \\  
+    & \text{path[null] initialisé} \\
+    & d=s \land\\
+    & my\_path[0..m-1] \text{ initialisé} \land\\
+    & m = 1 \land\\
+    & my\_path[0]=s\\
+    & path = my\_path[0..m-1]\\
+    & shortest\_path = 1\\
+} \lor\\
+&\state{
+    & w=w0 \land n=n_0 \land s=s_0 \land d=d_0\land\\
+    & G\_non\_oriente(n) = true \land \\  
+    & \text{path[null] initialisé} \\
+    & d\neq s \land\\
+    &explored[d]==false \land\\ 
+    & pq\to size = 0 \land\\
+    & shortest\_path = 0\\
+} \lor\\
+&\state{
+    & n=n_0 \land w=w_0 \land s=s_0 \land d=d_0 \land\\
+    & G\_non\_oriente(n) = true\land\\
+    & path\_k = Chemin(w,m,s,k)\:|\:\\
+    & \quad Min(Parcours(w,path\_k,\#path\_k,s,k),\\
+    & \quad Parcours\_possibles(w,s,k)) \land\\
+    & i\_node = d \land\\
+    & path\_n\_nodes = \#Chemin\_inverse(w,n,s,d)\land\\
+    & m = path\_n\_nodes\land\\
+    & my\_path[0..m-1] \text{ initialisé }\land\\
+    & my\_path = Chemin(w,m,s,d)\land\\
+    & path = my\_path[0..m-1]\\
+    & shortest\_path =  path\_n\_nodes\\
+}\\
+&\\
+\end{flalign*}
+Rappelons-nous de la postcondition du programme :
+\begin{flalign*}
+  \post \equiv & \state{
+    & n = n_0 \land  w = w_0 \land \\
+    & s = s_0 \land d = d_0 \land \\
+    & path[0..m-1] \text{ initialisé} \land 0 \leq m \leq n \land\\ 
+    & m = Etapes(w,s,d,path)\land  \\
+    & path[0] = First\_in\_path(path,m,s) \land\\ 
+    & path[m-1] = Last\_in\_path(path,m,d) \land \\
+    & Parcours(w,path,m,s,d) \leq Parcours\_possibles(w,s,d) \land \\
+    & shortest\_path = Etapes(w,s,d,path,m) \land \\
+  } 
+\end{flalign*}  
+
+Finalement, nous pouvons démontrer que $Q_9 \implies Q$ car :
+\begin{itemize}
+  \item Les paramètres $n$, $w$, $s$ et $d$ sont bien inchangés par rapport au départ.
+  \item path est bien un tableau initialisé.
+  \item La taille $m$ du tableau $path$ dépend bel et bien des conditions exprimées dans 
+  l'expression mathématiques~\eqref{eq:etapes}. 
+  Soit 0 (ou $\emptyset$) dans le cas où un chemin n'est pas trouvé selon 
+  l'expression~\eqref{eq:chemins_possibles} (ici $path \notin Chemins\_possibles(w,s,d)$);
+  soit 1 lorsque $s=d$;
+  soit le nombre d'éléments de $Chemin\_inverse(w,n,s,d)$ autrement.
+  \item Pour $path[0]$, le premier élément de $path$ est bien soit vide (ou $\emptyset$) dans le cas où $d$ n'est pas exploré
+  et aucun chemin n'est trouvé. Sinon, $path[0]$ = s. 
+  Cela correspond à la définition de l'expression mathématique~\eqref{eq:first_pos}. 
+  \item Pour $path[m-1]$, le dernier élément de $path$ est bien soit vide (ou $\emptyset$) 
+  dans le cas où $d$ n'est pas exploré et aucun chemin n'est trouvé. Sinon, $path[m-1] = s$  lorsque $s=d$
+  et $path[m-1] = d$  lorsque $s\neq d$.
+  Cela correspond à la définition de l'expression mathématique~\eqref{eq:last_pos}. 
+  \item Avec les expressions~\eqref{eq:parcours} et \eqref{eq:parcours_possibles}, nous pouvons aussi démontrer que 
+  $Parcours(w,path,m,s,d) \leq Parcours\_possibles(w,s,d)$ est impliqué par $Q_9$ car 
+  cette expression est conditionnée si $path \in Chemins\_possibles(w,s,d)$ et on ne retrouve celle-ci que dans
+  le troisème membre de la disjonction $Q_9$. Pour le cas où $s=d$, elle est impliquée indirectement car
+  cette distance a été posée à 0.0 et c'est le plus petite distance non négative possible.
+  \item Par\eqref{eq:etapes}, $Q_9$ implique bel et bien cette condition car 
+  $shortest\_path=0$ si $path \notin Chemins\_possibles(w,s,d)$ (deuxième membre de la disjonction $Q_9$);
+  $shortest\_path=1$ si $s=d$ (premier membre de la disjonction $Q_9$; 
+  et $shortest\_path=m$ autrement.
+\end{itemize}
+
+\subsection{Trouver $f(\overline{x})$}
+\label(ssec:xbar)
+Comme expliqué dans la section~\ref{sec:fonctionnement}, on comprend intuitivement que $f(\overline{x})$ 
+représente la diminution des noeuds disponibles à l'exploration jusqu'à explorer $d$. 
+Définissons d'abord deux ensembles de noeuds : $E_1$ pour l'ensemble des noeuds qui sont connectés à $s$ grâce
+aux expressions mathématiques~\eqref{eq:ingraph} et \eqref{eq:mapsto}. 
+$E_2$ représente l'ensembre des noeuds qui ont été explorés.
+Définissons également une fonction $Reste$ qui stipule que le nombre de noeuds restants est égale à 
+$E_1 - E_2$  et inclut le fait que le nombre restant de noeud tombe à 0 
+lorsque le noeud de destination $d$ a été exploré.
+
+\begin{flalign}
+Connecte(n,s, k) \overset{def}{=} \label{eq:connecte}&
+\left\{
+\begin{aligned}
+&true &\text{ si } \state{& In\_graph(n,s) \land\\
+    &In\_graph(n,k) \land\\
+    &\exists p \:|\: p[0..m-1] \land p[0]=s \land p[m-1]=s \land \\ 
+    &\forall i \:|\: 0 \leq i < m-1 : p[i] \mapsto p[i+1]}\\
+&false &\text{ sinon }\\
+\end{aligned}
+\right.&&\\
+E_1 \overset{def}{=}& \state{k \in \mathbb{N} \mid 0 \leq k < n \land Connecte(n,s,k) = true}&&\\
+E_2 \overset{def}{=}& \state{k \in \mathbb{N} \mid 0 \leq k < n \land explored[k] = \text{true}}&&\\
+Reste(explored,d,E_1,E_2) \overset{def}{=}&
+\left\{
+\begin{aligned}
+&0 &&\text{si } explored[d] = \text{true} \\
+&\#E_1 - \#E_2 &&\text{Sinon}
+\end{aligned}
+\right.&&\\
+f(\overline{x}) \overset{def}{=}& Reste(explored,d,E_1,E_2)&&
+\end{flalign}
+
+Lorsque $is\_pq\_empty(pq)$, alors $\#E_1-\#E_2=0$ et donc $\eqref{eq:mapsto}=0$.
+Lorsque $explored[d] = true$, alors  $Reste(explored,d,E_1,E_2)=0$ par définition et donc $f(\overline{x})=0$.
+Nous sommes assurés que la boucle se termine car $f(\overline{x})$ décroit à chaque itération.
+
+\section{Complexité de l'algorithme}
+\label{complexité}
+
+\subsection{Complexité temporelle}
+Voici une liste des assignations principales pour l'ensemble de mon implémentation pour l'algorithme de Dijkstra.
+\begin{itemize}
+\item Dans la fonction \textit{shortest\_path}, il existe un boucle principale $while$ où la condition de sortie 
+se base sur le fait que le noeud de destination soit exploré ou qu'il n'existe plus de noeuds explorables. 
+Dans le pire des cas, il faut parcourir tous les autres noeuds afin de pouvoir joindre le noeud destination
+car celui-ci est le plus éloigné de la source.
+Nous avons donc une complexité linéaire sur $n$ pour cette partie.
+\item Dans la fonction cette boucle $while$ principale, il existe une boucle $for$ 
+qui parcourt tous les noeuds dans une dimension de $w[i][j]$. 
+De nouveau, cela implique une complexité linéaire  $n$ pour cette partie.
+\item Il se peut que la distance à la source doive être constamment mis
+à jour au fil des explorations. 
+Dans ce cas, il existe un cout pour retirer (\textit{remove\_pointer\_from\_pq()}) et ajouter (\textit{add\_to\_pq()}) la nouvelle distance
+à la file de priorité qui est $log(n)$ pour chaque opération.
+\item A la fin de l'exploration, l'élément est enlevé de la file de priorité, 
+ce qui provoque un \textit{order\_lineage\_down()} qui peut avoir une complexité dans le pire des cas de 
+$log_2(n)$ 
+\end{itemize}
+Si nous faisans le total de ces différentes assignations, nous obtenons
+$n * (n\ + log_2(n)) * 2 * log_2(n)$. 
+La complexité temporelle dans le pire des cas est $T(n) = O(n^2 * log(n))$.
+
+\subsection{Complexité spatiale}
+Faisons la liste des différents éléments significatifs qui interviennent dans l'algorithme :
+\begin{itemize}
+  \item Les paramètres $n$, $s$, $d$ de complexité spatiale constante.
+  \item Le tableau à deux dimensions $w[0..n-1][0..n-1]$ de complexité spatiale $n^2$.
+  \item Le tableau $path$ peut avoir une complexité spatiale jusqu'à $n$.
+  \item Le tableau $dist\_from\_source[0..n-1]$ a une complexité spatiale $n$.
+  \item Le tableau $explored[0..n-1]$ a une complexité spatiale $n$.
+  \item Le tableau $previous\_node[0..n-1]$ a une complexité spatiale $n$.
+  \item La file de priorité $pq$ a une complexité spatiale $n$.
+\end{itemize}
+Dès lors, la complexité spatiale dans le pire des cas est : $T(n) = O(n^2)$ 
+
+\section{Version récursive de l'algorithme}
+Pour la version récursive (voir code ci-dessous), la boucle while dont l'invariant a été démontré dans la section~\ref{sec:invariant}
+est remplacée par une fonction récursive $exploration$. Nous pouvons utiliser une condition comparable à $\neg B$ 
+pour déclencher le cas de base qui effectue un simple return. 
+Autrement, l'exploration des noeuds voisins a lieu et ceci débouche sur le déclenchement d'un autre appel à $exploration$.
+Soit $y$, le paramètre d'induction :
+
+
+\begin{flalign*}
+y \overset{def}{=}& pq\to size\\
+E(y) \overset{def}{=}& \state{ i \in \mathbb{N} \:|\: 0 \leq i \leq n} \\
+\end{flalign*}
+
+Dès lors, 0 est la valeur minimal du paramètre d'induction. Lorsque $is\_pq\_empty(pq) = true$, 
+il est trivial de démontrer que $y = 0$. Cela constitue le cas de base de la fonction récursive.
+Dans le cas général, l'exploration des noeuds connectés à $s$ (voir expression~\eqref{eq:connecte}) se poursuit
+avec les calculs de $dist\_from\_source$ et $previous\_node$ des noeuds voisins au noeud prioritaire dans $pq$.
+
+\lstinputlisting[language=C]{../simplified_dikstra_algo/src/dijkstra_recursive.c}
+\section{Informations complémentaires}
+Avant un retravail complet de l'algorithme en utilisant des structures moins complexes, 
+j'ai souhaité répondre à un problème concret. 
+Quel est le chemin le plus court entre un 2 points de mon village situé sur un croisement ? 
+Un des buts de cette exercice était d'utiliser python avec le module osmnx et ctypes afin d'obtenir
+des données disponibles d'open street map et d'utiliser un algorithme dévelopé en C pour générer
+un fichier json en retour indiquant les différents noeuds à prendre.
+Voici un des résultats que j'ai pu obtenir :
+\begin{figure}[h]
+    \centering % Centre l'image
+    \includegraphics[width=0.8\textwidth]{graphe_satelite_ohey.png }
+    \caption{Plus cours chemin (en jaune) entre deux points de Ohey}
+    \label{fig:mon_image}
+\end{figure}
+\newpage
+
+Plus d'information est accessible dans un \href{https://www.example.com}{repository github} temporairement public.
+
+\bibliographystyle{plain} % Style de la bibliographie
+\bibliography{biblio} % Nom du fichier .bib (sans l'extension)
+\end{document}

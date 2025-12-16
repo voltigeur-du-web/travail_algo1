@@ -1,0 +1,35 @@
+\begin{thebibliography}{1}
+
+\bibitem{cormen2004}
+Thomas~H. Cormen, Charles~E. Leiserson, Ronald~L. Rivest, and Clifford Stein.
+\newblock {\em Introduction à l'algorithmique}.
+\newblock Dunod, 2004.
+
+\bibitem{dijkstra1959}
+E.~W. Dijkstra.
+\newblock A note on two problems in connexion with graphs.
+\newblock {\em Numerische Mathematik}, 1:269--271, 1959.
+
+\bibitem{fournier2006}
+Jean-Claude Fournier.
+\newblock {\em Théorie des graphes et applications}.
+\newblock Lavoisier, 2006.
+
+\bibitem{yt:monceau2020}
+Vincent Monceau.
+\newblock Algorithme de dijkstra, 2020.
+
+\bibitem{yt:monka2015}
+Yvan Monka.
+\newblock Utiliser l'algorithme de dijkstra - postbac, 2015.
+
+\bibitem{prins1996}
+C.~Prins.
+\newblock Une revue des algorithmes de plus court chemin.
+\newblock {\em Recherche opérationnelle}, 30(4):333--357, 1996.
+
+\bibitem{web:w3schools}
+W3Schools.
+\newblock Dsa dijkstra's algorithm, 2024.
+
+\end{thebibliography}
