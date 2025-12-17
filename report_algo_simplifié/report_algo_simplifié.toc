@@ -1,0 +1,85 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Spécifications dans l'algorithme}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}shortest path}{3}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Environnement}{3}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}Précondition}{3}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}Postcondition}{4}{subsubsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.2}clear explo objects}{4}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Environnement}{4}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}Précondition}{5}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}Postcondition}{5}{subsubsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.3}create pq}{5}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Environnement}{5}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Précondition}{6}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}Postcondition}{6}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}Démonstration}{6}{subsubsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.4}is pq full}{7}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}Environnement}{7}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}Précondition}{8}{subsubsection.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.4.3}Postcondition}{8}{subsubsection.2.4.3}%
+\contentsline {subsubsection}{\numberline {2.4.4}Démonstration}{8}{subsubsection.2.4.4}%
+\contentsline {subsection}{\numberline {2.5}is pq empty}{8}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}Environnement}{8}{subsubsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {2.5.2}Précondition}{8}{subsubsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.3}Postcondition}{9}{subsubsection.2.5.3}%
+\contentsline {subsubsection}{\numberline {2.5.4}Démonstration}{9}{subsubsection.2.5.4}%
+\contentsline {subsection}{\numberline {2.6}swap}{9}{subsection.2.6}%
+\contentsline {subsubsection}{\numberline {2.6.1}Environnement}{9}{subsubsection.2.6.1}%
+\contentsline {subsubsection}{\numberline {2.6.2}Précondition}{9}{subsubsection.2.6.2}%
+\contentsline {subsubsection}{\numberline {2.6.3}Postcondition}{9}{subsubsection.2.6.3}%
+\contentsline {subsubsection}{\numberline {2.6.4}Démonstration}{9}{subsubsection.2.6.4}%
+\contentsline {subsection}{\numberline {2.7}order lineage up}{10}{subsection.2.7}%
+\contentsline {subsubsection}{\numberline {2.7.1}Environnement}{10}{subsubsection.2.7.1}%
+\contentsline {subsubsection}{\numberline {2.7.2}Précondition}{11}{subsubsection.2.7.2}%
+\contentsline {subsubsection}{\numberline {2.7.3}Postcondition}{11}{subsubsection.2.7.3}%
+\contentsline {subsubsection}{\numberline {2.7.4}Démonstration}{11}{subsubsection.2.7.4}%
+\contentsline {subsection}{\numberline {2.8}add to pq}{12}{subsection.2.8}%
+\contentsline {subsubsection}{\numberline {2.8.1}Environnement}{12}{subsubsection.2.8.1}%
+\contentsline {subsubsection}{\numberline {2.8.2}Précondition}{12}{subsubsection.2.8.2}%
+\contentsline {subsubsection}{\numberline {2.8.3}Postcondition}{13}{subsubsection.2.8.3}%
+\contentsline {subsubsection}{\numberline {2.8.4}Démonstration}{13}{subsubsection.2.8.4}%
+\contentsline {subsection}{\numberline {2.9}serve pq}{14}{subsection.2.9}%
+\contentsline {subsubsection}{\numberline {2.9.1}Environnement}{14}{subsubsection.2.9.1}%
+\contentsline {subsubsection}{\numberline {2.9.2}Précondition}{15}{subsubsection.2.9.2}%
+\contentsline {subsubsection}{\numberline {2.9.3}Postcondition}{15}{subsubsection.2.9.3}%
+\contentsline {subsection}{\numberline {2.10}peek pq}{16}{subsection.2.10}%
+\contentsline {subsubsection}{\numberline {2.10.1}Environnement}{16}{subsubsection.2.10.1}%
+\contentsline {subsubsection}{\numberline {2.10.2}Précondition}{16}{subsubsection.2.10.2}%
+\contentsline {subsubsection}{\numberline {2.10.3}Postcondition}{16}{subsubsection.2.10.3}%
+\contentsline {subsection}{\numberline {2.11}remove id from pq}{16}{subsection.2.11}%
+\contentsline {subsubsection}{\numberline {2.11.1}Environnement}{16}{subsubsection.2.11.1}%
+\contentsline {subsubsection}{\numberline {2.11.2}Précondition}{17}{subsubsection.2.11.2}%
+\contentsline {subsubsection}{\numberline {2.11.3}Postcondition}{17}{subsubsection.2.11.3}%
+\contentsline {subsection}{\numberline {2.12}destroy pq}{17}{subsection.2.12}%
+\contentsline {subsubsection}{\numberline {2.12.1}Environnement}{17}{subsubsection.2.12.1}%
+\contentsline {subsubsection}{\numberline {2.12.2}Précondition}{17}{subsubsection.2.12.2}%
+\contentsline {subsubsection}{\numberline {2.12.3}Postcondition}{17}{subsubsection.2.12.3}%
+\contentsline {section}{\numberline {3}Implémentation}{18}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Déclaration des données abstraites et structures communes}{18}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}Structures communes}{18}{subsubsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.2}Données abstraites à propos de la priority queue (pq.h)}{18}{subsubsection.3.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.3}Données abstraites sur les méthodes de l'algorithme (dijkstra.h)}{19}{subsubsection.3.1.3}%
+\contentsline {subsubsection}{\numberline {3.1.4}Pertinence de la structure de données}{19}{subsubsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.2}File de priorité par tas binaire}{20}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Exploration de noeud et fonction principale}{23}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Fonctionnement intuitif de l'algorithme}{25}{section.4}%
+\contentsline {section}{\numberline {5}Preuve de programmation d'un invariant}{26}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Expression mathématiques utilisées}{27}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Trouver $I$}{28}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Trouver $\neg B$}{28}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Prouver $\{P\}INIT\{I\}$ avant d'entrer dans la boucle}{28}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Prouver $\{I \land B\}ITER\{I\}$ est vrai après une itération de la boucle}{31}{subsection.5.5}%
+\contentsline {subsubsection}{\numberline {5.5.1}Obtenir les conditions initiales avant l'entrée dans la boucle $FOR$}{32}{subsubsection.5.5.1}%
+\contentsline {subsubsection}{\numberline {5.5.2}Trouver la postcondition $Q1$ suite à $CONDITIONS$}{32}{subsubsection.5.5.2}%
+\contentsline {subsubsection}{\numberline {5.5.3}Trouver $I_1$ et prouver sa validité $\{I_1 \land B_1\}ITER_1\{I_1\}$ après une itération de la boucle}{40}{subsubsection.5.5.3}%
+\contentsline {subsubsection}{\numberline {5.5.4}Obtenir les conditions finales après le passage dans la boucle $FOR$}{41}{subsubsection.5.5.4}%
+\contentsline {subsubsection}{\numberline {5.5.5}Conclusion sur $\{I \land B\}ITER\{I\}$}{42}{subsubsection.5.5.5}%
+\contentsline {subsection}{\numberline {5.6}Trouver $CLOT$}{43}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.7}Prouver $\{I \land \neg B\}CLOT\{Q\}$ est vrai après la fin de la boucle}{44}{subsection.5.7}%
+\contentsline {subsection}{\numberline {5.8}Trouver $f(\overline {x})$}{55}{subsection.5.8}%
+\contentsline {section}{\numberline {6}Complexité de l'algorithme}{55}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Complexité temporelle}{55}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Complexité spatiale}{56}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Version récursive de l'algorithme}{56}{section.7}%
+\contentsline {section}{\numberline {8}Informations complémentaires}{58}{section.8}%

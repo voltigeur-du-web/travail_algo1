@@ -22,82 +22,134 @@
 \gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
+\babel@aux{french}{}
 \citation{yt:monceau2020}
 \citation{yt:monka2015}
 \citation{dijkstra1959}
 \citation{prins1996}
 \citation{web:w3schools}
-\babel@aux{french}{}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Spécification de l'algorithme}{1}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Environnement}{1}{subsection.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Précondition}{1}{subsection.2.2}\protected@file@percent }
-\newlabel{eq:ingraph}{{1}{2}{Précondition}{equation.2.1}{}}
-\newlabel{eq:mapsto}{{2}{2}{Précondition}{equation.2.2}{}}
-\newlabel{eq:nonoriente}{{3}{2}{Précondition}{equation.2.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Postcondition}{2}{subsection.2.3}\protected@file@percent }
-\newlabel{eq:chemins_possibles}{{4}{2}{Postcondition}{equation.2.4}{}}
-\newlabel{eq:parcours}{{5}{2}{Postcondition}{equation.2.5}{}}
-\newlabel{eq:parcours_possibles}{{6}{2}{Postcondition}{equation.2.6}{}}
-\newlabel{eq:etapes}{{7}{2}{Postcondition}{equation.2.7}{}}
-\newlabel{eq:first_pos}{{8}{2}{Postcondition}{equation.2.8}{}}
-\newlabel{eq:last_pos}{{9}{2}{Postcondition}{equation.2.9}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Implémentation}{3}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Déclaration des données abstraites et structures communes}{3}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}Structures communes}{3}{subsubsection.3.1.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.2}Données abstraites à propos de la priority queue (pq.h)}{3}{subsubsection.3.1.2}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/pq.h}{3}{lstlisting.-3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.3}Données abstraites sur les méthodes de l'algorithme (dijkstra.h)}{4}{subsubsection.3.1.3}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/dijkstra.h}{4}{lstlisting.-4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Spécifications dans l'algorithme}{3}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}shortest path}{3}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.1}Environnement}{3}{subsubsection.2.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.2}Précondition}{3}{subsubsection.2.1.2}\protected@file@percent }
+\newlabel{eq:ingraph}{{1}{3}{Précondition}{equation.2.1}{}}
+\newlabel{eq:mapsto}{{2}{3}{Précondition}{equation.2.2}{}}
+\newlabel{eq:nonoriente}{{3}{3}{Précondition}{equation.2.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.3}Postcondition}{4}{subsubsection.2.1.3}\protected@file@percent }
+\newlabel{eq:chemins_possibles}{{5}{4}{Postcondition}{equation.2.5}{}}
+\newlabel{eq:parcours}{{6}{4}{Postcondition}{equation.2.6}{}}
+\newlabel{eq:parcours_possibles}{{7}{4}{Postcondition}{equation.2.7}{}}
+\newlabel{eq:etapes}{{8}{4}{Postcondition}{equation.2.8}{}}
+\newlabel{eq:first_pos}{{9}{4}{Postcondition}{equation.2.9}{}}
+\newlabel{eq:last_pos}{{10}{4}{Postcondition}{equation.2.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}clear explo objects}{4}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Environnement}{4}{subsubsection.2.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}Précondition}{5}{subsubsection.2.2.2}\protected@file@percent }
+\newlabel{eq:pointeur}{{12}{5}{Précondition}{equation.2.12}{}}
+\newlabel{eq:pqinit}{{13}{5}{Précondition}{equation.2.13}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}Postcondition}{5}{subsubsection.2.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}create pq}{5}{subsection.2.3}\protected@file@percent }
+\newlabel{ssec:create_pq}{{2.3}{5}{create pq}{subsection.2.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Environnement}{5}{subsubsection.2.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Précondition}{6}{subsubsection.2.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Postcondition}{6}{subsubsection.2.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.4}Démonstration}{6}{subsubsection.2.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}is pq full}{7}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.1}Environnement}{7}{subsubsection.2.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}Précondition}{8}{subsubsection.2.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.3}Postcondition}{8}{subsubsection.2.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.4}Démonstration}{8}{subsubsection.2.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}is pq empty}{8}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.1}Environnement}{8}{subsubsection.2.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.2}Précondition}{8}{subsubsection.2.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.3}Postcondition}{9}{subsubsection.2.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.4}Démonstration}{9}{subsubsection.2.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}swap}{9}{subsection.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.1}Environnement}{9}{subsubsection.2.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.2}Précondition}{9}{subsubsection.2.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.3}Postcondition}{9}{subsubsection.2.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.4}Démonstration}{9}{subsubsection.2.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7}order lineage up}{10}{subsection.2.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.7.1}Environnement}{10}{subsubsection.2.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.7.2}Précondition}{11}{subsubsection.2.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.7.3}Postcondition}{11}{subsubsection.2.7.3}\protected@file@percent }
+\newlabel{eq:pqupdecreasing}{{16}{11}{Postcondition}{equation.2.16}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.7.4}Démonstration}{11}{subsubsection.2.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.8}add to pq}{12}{subsection.2.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.8.1}Environnement}{12}{subsubsection.2.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.8.2}Précondition}{12}{subsubsection.2.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.8.3}Postcondition}{13}{subsubsection.2.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.8.4}Démonstration}{13}{subsubsection.2.8.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.9}serve pq}{14}{subsection.2.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.9.1}Environnement}{14}{subsubsection.2.9.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.9.2}Précondition}{15}{subsubsection.2.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.9.3}Postcondition}{15}{subsubsection.2.9.3}\protected@file@percent }
+\newlabel{eq:inpq}{{17}{15}{Postcondition}{equation.2.17}{}}
+\newlabel{eq:prioritaire}{{18}{15}{Postcondition}{equation.2.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.10}peek pq}{16}{subsection.2.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.10.1}Environnement}{16}{subsubsection.2.10.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.10.2}Précondition}{16}{subsubsection.2.10.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.10.3}Postcondition}{16}{subsubsection.2.10.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.11}remove id from pq}{16}{subsection.2.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.11.1}Environnement}{16}{subsubsection.2.11.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.11.2}Précondition}{17}{subsubsection.2.11.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.11.3}Postcondition}{17}{subsubsection.2.11.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.12}destroy pq}{17}{subsection.2.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.12.1}Environnement}{17}{subsubsection.2.12.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.12.2}Précondition}{17}{subsubsection.2.12.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.12.3}Postcondition}{17}{subsubsection.2.12.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Implémentation}{18}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Déclaration des données abstraites et structures communes}{18}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}Structures communes}{18}{subsubsection.3.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.2}Données abstraites à propos de la priority queue (pq.h)}{18}{subsubsection.3.1.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/pq.h}{18}{lstlisting.-15}\protected@file@percent }
 \citation{fournier2006}
 \citation{cormen2004}
 \citation{cormen2004}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.4}Pertinence de la structure de données}{5}{subsubsection.3.1.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}File de priorité par tas binaire}{5}{subsection.3.2}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/pq.c}{5}{lstlisting.-5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Exploration de noeud et fonction principale}{8}{subsection.3.3}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/dijkstra.c}{8}{lstlisting.-6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.3}Données abstraites sur les méthodes de l'algorithme (dijkstra.h)}{19}{subsubsection.3.1.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/dijkstra.h}{19}{lstlisting.-16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.4}Pertinence de la structure de données}{19}{subsubsection.3.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}File de priorité par tas binaire}{20}{subsection.3.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/pq.c}{20}{lstlisting.-17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Exploration de noeud et fonction principale}{23}{subsection.3.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/dijkstra.c}{23}{lstlisting.-18}\protected@file@percent }
 \citation{dijkstra1959}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Fonctionnement intuitif de l'algorithme}{10}{section.4}\protected@file@percent }
-\newlabel{sec:fonctionnement}{{4}{10}{Fonctionnement intuitif de l'algorithme}{section.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Preuve de programmation d'un invariant}{11}{section.5}\protected@file@percent }
-\newlabel{sec:invariant}{{5}{11}{Preuve de programmation d'un invariant}{section.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Expression mathématiques utilisées}{12}{subsection.5.1}\protected@file@percent }
-\newlabel{sec:mathfunc}{{5.1}{12}{Expression mathématiques utilisées}{subsection.5.1}{}}
-\newlabel{eq:prioritaire}{{13}{12}{Expression mathématiques utilisées}{equation.5.13}{}}
-\newlabel{eq:chemin_inverse}{{14}{13}{Expression mathématiques utilisées}{equation.5.14}{}}
-\newlabel{eq:reverse}{{15}{13}{Expression mathématiques utilisées}{equation.5.15}{}}
-\newlabel{eq:chemin}{{16}{13}{Expression mathématiques utilisées}{equation.5.16}{}}
-\newlabel{eq:pqinit}{{18}{13}{Expression mathématiques utilisées}{equation.5.18}{}}
-\newlabel{eq:pqupdecreasing}{{23}{13}{Expression mathématiques utilisées}{equation.5.23}{}}
-\newlabel{eq:explo_init}{{27}{14}{Expression mathématiques utilisées}{equation.5.27}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Trouver $I$}{14}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Trouver $\neg B$}{14}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Démonstration des fonctions intermédiaires}{14}{subsection.5.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.1}Preuve de create\_pq}{14}{subsubsection.5.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}Preuve de $is\_pq\_full$}{16}{subsubsection.5.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.3}Preuve de $swap$}{16}{subsubsection.5.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.4}Preuve de $order\_lineage\_up$}{17}{subsubsection.5.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.5}Preuve de $add\_to\_pq$}{18}{subsubsection.5.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Prouver $\{P\}INIT\{I\}$ avant d'entrer dans la boucle}{21}{subsection.5.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Prouver $\{I \land B\}ITER\{I\}$ est vrai après une itération de la boucle}{23}{subsection.5.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.1}Obtenir les conditions initiales avant l'entrée dans la boucle $FOR$}{24}{subsubsection.5.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.2}Trouver la postcondition $Q1$ suite à $CONDITIONS$}{25}{subsubsection.5.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.3}Trouver $I_1$ et prouver sa validité $\{I_1 \land B_1\}ITER_1\{I_1\}$ après une itération de la boucle}{32}{subsubsection.5.6.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.4}Obtenir les conditions finales après le passage dans la boucle $FOR$}{34}{subsubsection.5.6.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.6.5}Conclusion sur $\{I \land B\}ITER\{I\}$}{35}{subsubsection.5.6.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}Trouver $CLOT$}{36}{subsection.5.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}Prouver $\{I \land \neg B\}CLOT\{Q\}$ est vrai après la fin de la boucle}{37}{subsection.5.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.9}Trouver $f(\overline  {x})$}{48}{subsection.5.9}\protected@file@percent }
-\newlabel{(}{{5.9}{48}{Trouver $f(\overline {x})$}{subsection.5.9}{}}
-\newlabel{eq:connecte}{{28}{48}{Trouver $f(\overline {x})$}{equation.5.28}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Complexité de l'algorithme}{48}{section.6}\protected@file@percent }
-\newlabel{complexité}{{6}{48}{Complexité de l'algorithme}{section.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Complexité temporelle}{48}{subsection.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Complexité spatiale}{49}{subsection.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}Version récursive de l'algorithme}{49}{section.7}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/dijkstra\textunderscore recursive.c}{49}{lstlisting.-23}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {8}Informations complémentaires}{51}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Fonctionnement intuitif de l'algorithme}{25}{section.4}\protected@file@percent }
+\newlabel{sec:fonctionnement}{{4}{25}{Fonctionnement intuitif de l'algorithme}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Preuve de programmation d'un invariant}{26}{section.5}\protected@file@percent }
+\newlabel{sec:invariant}{{5}{26}{Preuve de programmation d'un invariant}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Expression mathématiques utilisées}{27}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:mathfunc}{{5.1}{27}{Expression mathématiques utilisées}{subsection.5.1}{}}
+\newlabel{eq:chemin_inverse}{{26}{27}{Expression mathématiques utilisées}{equation.5.26}{}}
+\newlabel{eq:reverse}{{27}{27}{Expression mathématiques utilisées}{equation.5.27}{}}
+\newlabel{eq:chemin}{{28}{27}{Expression mathématiques utilisées}{equation.5.28}{}}
+\newlabel{eq:explo_init}{{29}{27}{Expression mathématiques utilisées}{equation.5.29}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Trouver $I$}{28}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Trouver $\neg B$}{28}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Prouver $\{P\}INIT\{I\}$ avant d'entrer dans la boucle}{28}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Prouver $\{I \land B\}ITER\{I\}$ est vrai après une itération de la boucle}{31}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.1}Obtenir les conditions initiales avant l'entrée dans la boucle $FOR$}{32}{subsubsection.5.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.2}Trouver la postcondition $Q1$ suite à $CONDITIONS$}{32}{subsubsection.5.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.3}Trouver $I_1$ et prouver sa validité $\{I_1 \land B_1\}ITER_1\{I_1\}$ après une itération de la boucle}{40}{subsubsection.5.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.4}Obtenir les conditions finales après le passage dans la boucle $FOR$}{41}{subsubsection.5.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.5.5}Conclusion sur $\{I \land B\}ITER\{I\}$}{42}{subsubsection.5.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Trouver $CLOT$}{43}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}Prouver $\{I \land \neg B\}CLOT\{Q\}$ est vrai après la fin de la boucle}{44}{subsection.5.7}\protected@file@percent }
+\citation{dijkstra1959}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.8}Trouver $f(\overline  {x})$}{55}{subsection.5.8}\protected@file@percent }
+\newlabel{ssec:xbar}{{5.8}{55}{Trouver $f(\overline {x})$}{subsection.5.8}{}}
+\newlabel{eq:connecte}{{30}{55}{Trouver $f(\overline {x})$}{equation.5.30}{}}
+\newlabel{eq:e1}{{31}{55}{Trouver $f(\overline {x})$}{equation.5.31}{}}
+\newlabel{eq:e2}{{32}{55}{Trouver $f(\overline {x})$}{equation.5.32}{}}
+\newlabel{eq:reste}{{33}{55}{Trouver $f(\overline {x})$}{equation.5.33}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Complexité de l'algorithme}{55}{section.6}\protected@file@percent }
+\newlabel{complexité}{{6}{55}{Complexité de l'algorithme}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Complexité temporelle}{55}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Complexité spatiale}{56}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Version récursive de l'algorithme}{56}{section.7}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{../simplified\textunderscore dikstra\textunderscore algo/src/dijkstra\textunderscore recursive.c}{56}{lstlisting.-29}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Informations complémentaires}{58}{section.8}\protected@file@percent }
 \bibstyle{plain}
 \bibdata{biblio}
 \bibcite{cormen2004}{1}
@@ -107,6 +159,6 @@
 \bibcite{yt:monka2015}{5}
 \bibcite{prins1996}{6}
 \bibcite{web:w3schools}{7}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Plus cours chemin (en jaune) entre deux points de Ohey}}{52}{figure.1}\protected@file@percent }
-\newlabel{fig:mon_image}{{1}{52}{Plus cours chemin (en jaune) entre deux points de Ohey}{figure.1}{}}
-\gdef \@abspage@last{52}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Plus cours chemin (en jaune) entre deux points de Ohey}}{59}{figure.1}\protected@file@percent }
+\newlabel{fig:mon_image}{{1}{59}{Plus cours chemin (en jaune) entre deux points de Ohey}{figure.1}{}}
+\gdef \@abspage@last{59}

@@ -32,7 +32,7 @@ void clear_explo_objects(bool* explored, float* dist_from_source, PQ_t pq, int* 
 // Fonction d'exploration recursive
 void exploration(unsigned int n, float** w, unsigned int s, unsigned int d, 
     bool* explored, float* dist_from_source, PQ_t pq, int* previous_nodes){
-    if(is_pq_empty(pq)) return;
+    if(is_pq_empty(pq)||explored[d]==true) return;
     Node_PQ_t current_node = peek_pq(pq);
     int k = current_node->id;
     // Marque noeud courant comme explore
